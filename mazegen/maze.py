@@ -27,7 +27,7 @@ class Maze:
                 row.append(0xF)
             self.grid.append(row)
 
-        # All the cells are not visited by default
+        # All the cells are unvisited by default
         self.visited: List[List[bool]] = []
         for _ in range(height):
             row: List[bool] = []

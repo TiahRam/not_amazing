@@ -93,3 +93,5 @@ def _visualizer_logic(stdscr, maze_obj):
     stdscr.getch()
 
 run_visualizer(maze)
+
+# smol edit to make sure we can pull

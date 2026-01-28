@@ -15,7 +15,12 @@ WEST = 0b1000
 class Maze:
     """Represents a maze grid with wall operations."""
     def __init__(self, height: int, width: int) -> None:
-        """Maze Constructor"""
+        """Maze Constructor
+
+        Args:
+            width: grid width
+            height: grid height
+        """
         self.height = height
         self.width = width
 
@@ -27,7 +32,7 @@ class Maze:
                 row.append(0xF)
             self.grid.append(row)
 
-        # All the cells are unvisited by default
+        # All the cells are not visited by default
         self.visited: List[List[bool]] = []
         for _ in range(height):
             row: List[bool] = []
@@ -70,13 +75,13 @@ class Maze:
         if y > 0:
             # NORTH NEIGHBOR
             valid_neighbors.append((y - 1, x))
-        if x > 0:
+        if x < self.width - 1:
             # EAST NEIGHBOR
             valid_neighbors.append((y, x + 1))
         if y < self.height - 1:
             # SOUTH NEIGHBOR
             valid_neighbors.append((y + 1, x))
-        if x < self.height - 1:
+        if x > 0:
             # WEST NEIGHBOR
             valid_neighbors.append((y, x - 1))
 
@@ -85,7 +90,8 @@ class Maze:
     def get_unvisited_neighbors(self, y: int, x: int) -> List[Tuple[int, int]]:
         """Get neighbors that haven't been visited yet"""
         unvisited_neighbors: List[Tuple[int, int]] = []
-        for neigh_y, neigh_x in self.get_neighbors(y, x):
+        all_neighbors = self.get_neighbors(y, x)
+        for neigh_y, neigh_x in all_neighbors:
             if not self.visited[neigh_y][neigh_x]:
                 unvisited_neighbors.append((neigh_y, neigh_x))
 
@@ -96,7 +102,10 @@ class Maze:
         self.visited[y][x] = True
 
     def is_visited(self, y: int, x: int) -> bool:
-        """Check if cell was visited."""
+        """
+        Check if cell was visited.
+        Returns: boolen
+        """
         return self.visited[y][x]
 
     def all_visited(self) -> bool:

@@ -6,11 +6,13 @@ import os
 
 
 def first_args_validation() -> Dict[str, str]:
-    """First validation step:
-    - check if file exit and valid file permission
-    - operation and syntax error validation
-    - Return a Dict of all valid configurations for the next step validation,
-    - or exit the program if there is any error.
+    """
+    Validate file operations (exist and proper permission),
+    Validate proper syntax
+
+    Returns:
+        Config dict with everything as strings
+        Exit the program if errors
     """
     config_variables: List[str] = []
     valid_configs: List[tuple] = []
@@ -89,13 +91,13 @@ def first_args_validation() -> Dict[str, str]:
 
 def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
     """
-    Check for all semantic validation:
-    - all required keys are present and all value are parsable
-    - valid coordinates (inside the HEIGHT and WIDTH bounds)
-    - parsable boolean value for PERFECT config
-    - valid file_name and path for OUTPUT_FILE
-    - Return a Dict if all operations are successful
-    - or exit the program if there is any error.
+    Validate and convert config values to proper types.
+
+    Args:
+        config_values: Raw config dict (all strings)
+
+    Returns:
+        Typed config dict with proper types
     """
     updated_config_values: Dict[str, Any] = config_values
     typed_configs: Dict = {}
@@ -160,19 +162,19 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
         successful_entry_parsing = False
         # Checking for the ENTRY coordinates
         try:
-            x = int(splitted_entry[0])
-            y = int(splitted_entry[1])
+            y = int(splitted_entry[0])
+            x = int(splitted_entry[1])
             if x < 0 or y < 0:
                 errors.append("ENTRY coordinates cannot be negative")
-            elif x >= width or y >= height:
-                if x >= width:
+            elif y >= width or x >= height:
+                if y >= width:
                     errors.append(f"In 'ENTRY' coordinates line: "
-                                  f"{x} value is out of WIDTH bounds")
+                                  f"{y} value is out of WIDTH bounds")
                 else:
                     errors.append(f"In 'ENTRY' coordinates line: "
-                                  f"{y} value is out of HEIGHT bounds")
+                                  f"{x} value is out of HEIGHT bounds")
             else:
-                typed_configs["ENTRY"] = (x, y)
+                typed_configs["ENTRY"] = (y, x)
                 del updated_config_values["ENTRY"]
                 successful_entry_parsing = True
         except ValueError:
@@ -180,8 +182,8 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
 
         # After parsing coordinates, check if it's at the border:
         if successful_entry_parsing:
-            if not is_at_border(typed_configs["ENTRY"][0],
-                                typed_configs["ENTRY"][1],
+            if not is_at_border(typed_configs["ENTRY"][1],
+                                typed_configs["ENTRY"][0],
                                 typed_configs["WIDTH"],
                                 typed_configs["HEIGHT"]):
                 errors.append("ENTRY must be at external border of the maze")
@@ -189,19 +191,19 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
         # Checking for the EXIT coordinates
         successful_exit_parsing = False
         try:
-            x = int(splitted_exit[0])
-            y = int(splitted_exit[1])
+            y = int(splitted_exit[0])
+            x = int(splitted_exit[1])
             if x < 0 or y < 0:
                 errors.append("EXIT coordinates cannot be negative")
-            elif x >= width or y >= height:
-                if x >= width:
+            elif y >= width or x >= height:
+                if y >= width:
                     errors.append(f"In 'EXIT' coordinates line: "
-                                  f"{x} value is out of WIDTH bounds")
+                                  f"{y} value is out of WIDTH bounds")
                 else:
                     errors.append(f"In 'EXIT' coordinates line: "
-                                  f"{y} value is out of HEIGHT bounds")
+                                  f"{x} value is out of HEIGHT bounds")
             else:
-                typed_configs["EXIT"] = (x, y)
+                typed_configs["EXIT"] = (y, x)
                 del updated_config_values["EXIT"]
                 successful_exit_parsing = True
         except ValueError:
@@ -209,8 +211,8 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
 
         # After parsing coordinates, check if it's at the border:
         if successful_exit_parsing:
-            if not is_at_border(typed_configs["EXIT"][0],
-                                typed_configs["EXIT"][1],
+            if not is_at_border(typed_configs["EXIT"][1],
+                                typed_configs["EXIT"][0],
                                 typed_configs["WIDTH"],
                                 typed_configs["HEIGHT"]):
                 errors.append("EXIT must be at external border of the maze")
@@ -285,17 +287,41 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
             print(f" - {err}")
         sys.exit(1)
 
+    # ============================================================
+    # OPTIONAL CONFIGS
+    # SEED (optional, int)
+    if "SEED" in config_values:
+        try:
+            seed = int(config_values["SEED"])
+            typed_configs["SEED"] = seed
+            del updated_config_values["SEED"]
+        except ValueError:
+            errors.append(f"Invalid SEED: must be an integer, "
+                          f"got '{config_values['SEED']}' instead")
+
+    # VISUAL (optional, string)
+    if "VISUAL" in config_values:
+        typed_configs["VISUAL"] = config_values["VISUAL"]
+        del updated_config_values["VISUAL"]
+
+    # ALGORITHM (optional, string)
+    if "ALGORITHM" in config_values:
+        typed_configs["ALGORITHM"] = config_values["ALGORITHM"]
+        del updated_config_values["ALGORITHM"]
+
+    # DISPLAY MODE (optional, string)
+    if "DISPLAY MODE" in config_values:
+        typed_configs["DISPLAY MODE"] = config_values["DISPLAY MODE"]
+        del updated_config_values["DISPLAY MODE"]
+
+    if errors:
+        print("Semantic error found:")
+        for err in errors:
+            print(f" - {err}")
+        sys.exit(1)
+
     # getting the rest of the valid configs in case we will need them
     typed_configs.update(updated_config_values)
 
     # return final_dict
     return typed_configs
-
-
-if __name__ == "__main__":
-    configs = first_args_validation()
-    typed_configs = semantic_validation(configs)
-    print(typed_configs)
-
-    # for value in typed_configs.values():
-    #     print(type(value))

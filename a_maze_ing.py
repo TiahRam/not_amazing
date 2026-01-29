@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-from visualizer import run_visualizer
 from validation import validate_perfect_maze
 from mazegen.generator import MazeGenerator
 from helpers.parser import first_args_validation, semantic_validation
@@ -8,9 +7,11 @@ from helpers.entry_and_exit import add_entry_exit
 from helpers.output_writing import write_output
 from helpers.imperfect_maze import add_random_loops
 from pathfinding import find_shortest_path
+from pattern42 import place_42_pattern
 
 
 def main():
+    """Main Program orchestrator"""
     # 1. Parse config
     configs = first_args_validation()
     typed_configs = semantic_validation(configs)
@@ -51,7 +52,14 @@ def main():
     # 5. Find the shortest path
     path = find_shortest_path(maze, entry, exit_)
     print(f"Path found! Length: {len(path)} steps")
-    print(f"Path: {path[:50]}{'...' if len(path) > 50 else ''}")
+    if len(path) > 0:
+        print(f"Path: {path[:50]}{'...' if len(path) > 50 else ''}")
+
+    # 5. Place "42" pattern
+    pattern_placed = place_42_pattern(maze, path, entry, exit_)
+    if not pattern_placed:
+        print("WARNING: Cannot place '42' pattern - "
+              "maze too small or path blocks all positions")
 
     # 6. Write output (without path for now)
     write_output(maze, entry, exit_, output_file, path)

@@ -2,10 +2,9 @@ WIDTH=20
 HEIGHT=20
 ENTRY=0,0
 EXIT=19,19
-OUTPUT_FILE=maze.txt
+OUTPUT_FILE=output.txt
 PERFECT=yes
 
 # misc keys
 VISUAL=maze_visual
-SEED=42069
 ajdjasjdas=('yahya', 0, 10)

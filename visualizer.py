@@ -36,16 +36,24 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
             # Coordinate offsetting
             sy = y * 2
             sx = x * 4
+
+            # If cell is in 42 pattern
+            is_pattern_block = (cell_value == 0xF)
+            
+            # If cell is in path_coords
+            is_path = (y, x) in path_coords
             
             # We check if this (y, x) is in our path set
-            if (y, x) in path_coords:
-                 stdscr.addstr(sy + 1, sx + 2, "●", curses.color_pair(2))
+            if is_pattern_block:
+                 stdscr.addstr(sy + 1, sx + 1, "   ", curses.color_pair(3))
+            else:
+                if (y, x) in path_coords:
+                    stdscr.addstr(sy + 1, sx + 1, "   ", curses.color_pair(2))
             
-            if (y, x) == entry:
-                 stdscr.addstr(sy + 1, sx + 2, "E", curses.color_pair(3) | curses.A_BOLD)
-            if (y, x) == exit:
-                 stdscr.addstr(sy + 1, sx + 2, "X", curses.color_pair(4) | curses.A_BOLD)
-            # ------------------------------------
+                if (y, x) == entry:
+                    stdscr.addstr(sy + 1, sx, "▀▄▀▄", curses.color_pair(5))
+                if (y, x) == exit:
+                    stdscr.addstr(sy + 2, sx, "▀▄▀▄", curses.color_pair(4))
 
             # Anchors (top left corner)
             stdscr.addstr(sy, sx, "+", curses.color_pair(1))
@@ -54,12 +62,20 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
             if cell_value & NORTH:
                 stdscr.addstr(sy, sx + 1, "---", curses.color_pair(1))
             else:
-                stdscr.addstr(sy, sx + 1, "   ")
+                # GAP LOGIC: If I am on path AND North neighbor is on path -> Color the gap
+                if is_path and (y - 1, x) in path_coords:
+                    stdscr.addstr(sy, sx + 1, "   ", curses.color_pair(2))
+                else:
+                    stdscr.addstr(sy, sx + 1, "   ")
 
             if cell_value & WEST:
                 stdscr.addstr(sy + 1, sx, "|", curses.color_pair(1))
             else:
-                stdscr.addstr(sy + 1, sx, " ")
+                # GAP LOGIC: If I am on path AND West neighbor is on path -> Color the gap
+                if is_path and (y, x - 1) in path_coords:
+                    stdscr.addstr(sy + 1, sx, " ", curses.color_pair(2))
+                else:
+                    stdscr.addstr(sy + 1, sx, " ")
 
             if x == maze_obj.width - 1:
                 stdscr.addstr(sy, sx + 4, "+", curses.color_pair(1)) # top right corner
@@ -76,18 +92,21 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
             stdscr.addstr(sy + 2, sx, "+", curses.color_pair(1))
             stdscr.addstr(sy + 2, sx + 4, "+", curses.color_pair(1))
 
-# --- UPDATED: Accepts entry, exit, path_str ---
 def run_visualizer(maze_obj, entry, exit, path_str=""):
     curses.wrapper(lambda stdscr: _visualizer_logic(stdscr, maze_obj, entry, exit, path_str))
 
 def _visualizer_logic(stdscr, maze_obj, entry, exit, path_str):
     curses.start_color()
     # Color Pair 1 = Green Text on Magenta Background
-    curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_MAGENTA)
+    curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLUE)
     # Color Pair 2 = Cyan Text on Black Background
-    curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
-    
-
+    curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_MAGENTA)
+    # Color Pair 3 = 42 Pattern Colors
+    curses.init_pair(3, curses.COLOR_RED, curses.COLOR_WHITE)
+    # Color Pair 4 = Exit
+    curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    # Color Pair 5 = Entry
+    curses.init_pair(5, curses.COLOR_RED, curses.COLOR_BLACK)
     
     # Calculate path coordinates
     path_coords = get_path_coordinates(entry, path_str)

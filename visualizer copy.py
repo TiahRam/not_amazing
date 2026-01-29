@@ -1,26 +1,15 @@
 #!/usr/bin/env python3
-
+# test_maze.py
 import curses
 from mazegen.maze import Maze, NORTH, EAST, SOUTH, WEST # noqa
 
-
-def get_path_coordinates(entry, path_str):
-    coords = set()
-    curr_y, curr_x = entry
-    coords.add((curr_y, curr_x)) # Add start
-    
-    for move in path_str:
-        if move == 'N': curr_y -= 1
-        elif move == 'S': curr_y += 1
-        elif move == 'E': curr_x += 1
-        elif move == 'W': curr_x -= 1
-        coords.add((curr_y, curr_x))
-    return coords
-
-def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
+def draw_maze(stdscr, maze_obj):
     curses.curs_set(0) # Hides our terminal cursor
     
+    # Safety check for terminal size because I learned it the hard way
     max_y, max_x = stdscr.getmaxyx()
+
+    # We need HEIGHT * 2 lines and WIDTH * 4 columns
     needed_y = maze_obj.height * 2 + 2
     needed_x = maze_obj.width * 4 + 2
 
@@ -33,20 +22,10 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
         for x in range(maze_obj.width):
             cell_value = maze_obj.get_cell_value(y, x)
             
-            # Coordinate offsetting
+            # Coordinate offsetting (each cell is 4 chars wide and 2 chars tall)
             sy = y * 2
             sx = x * 4
             
-            # We check if this (y, x) is in our path set
-            if (y, x) in path_coords:
-                 stdscr.addstr(sy + 1, sx + 2, "●", curses.color_pair(2))
-            
-            if (y, x) == entry:
-                 stdscr.addstr(sy + 1, sx + 2, "E", curses.color_pair(3) | curses.A_BOLD)
-            if (y, x) == exit:
-                 stdscr.addstr(sy + 1, sx + 2, "X", curses.color_pair(4) | curses.A_BOLD)
-            # ------------------------------------
-
             # Anchors (top left corner)
             stdscr.addstr(sy, sx, "+", curses.color_pair(1))
 
@@ -62,11 +41,13 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
                 stdscr.addstr(sy + 1, sx, " ")
 
             if x == maze_obj.width - 1:
+                # We need to close the box on the right
                 stdscr.addstr(sy, sx + 4, "+", curses.color_pair(1)) # top right corner
                 if cell_value & EAST:
                     stdscr.addstr(sy + 1, sx + 4, "|", curses.color_pair(1))
             
             if y == maze_obj.height - 1:
+                # We need to close the box at the bottom
                 stdscr.addstr(sy + 2, sx, "+", curses.color_pair(1)) # bottom left corner
                 if cell_value & SOUTH:
                     stdscr.addstr(sy + 2, sx + 1, "---", curses.color_pair(1))
@@ -76,24 +57,16 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
             stdscr.addstr(sy + 2, sx, "+", curses.color_pair(1))
             stdscr.addstr(sy + 2, sx + 4, "+", curses.color_pair(1))
 
-# --- UPDATED: Accepts entry, exit, path_str ---
-def run_visualizer(maze_obj, entry, exit, path_str=""):
-    curses.wrapper(lambda stdscr: _visualizer_logic(stdscr, maze_obj, entry, exit, path_str))
+def run_visualizer(maze_obj):
+    curses.wrapper(lambda stdscr: _visualizer_logic(stdscr, maze_obj))
 
-def _visualizer_logic(stdscr, maze_obj, entry, exit, path_str):
+def _visualizer_logic(stdscr, maze_obj):
     curses.start_color()
-    # Color Pair 1 = Green Text on Magenta Background
+    # Color Pair 1 = Green Text on Black Background
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_MAGENTA)
-    # Color Pair 2 = Cyan Text on Black Background
-    curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
     
-
-    
-    # Calculate path coordinates
-    path_coords = get_path_coordinates(entry, path_str)
-
     stdscr.clear()
-    draw_maze(stdscr, maze_obj, entry, exit, path_coords)
+    draw_maze(stdscr, maze_obj)
     
     # UI Message at the bottom
     msg_y = (maze_obj.height * 2) + 1

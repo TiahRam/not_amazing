@@ -49,7 +49,7 @@ def main():
 
     add_entry_exit(maze, entry, exit_)
 
-    run_visualizer(maze)
+    run_visualizer(maze, entry, exit_, path)
 
 
 if __name__ == "__main__":

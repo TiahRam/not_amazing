@@ -1,5 +1,6 @@
 from typing import Tuple, Optional, List
 from mazegen.maze import Maze
+from mazegen.maze import NORTH, EAST, SOUTH, WEST
 
 
 def get_path_cells(entry: Tuple[int, int], path_string: str) -> set:
@@ -121,6 +122,22 @@ def place_pattern(maze: Maze, pattern: List[List[int]],
                 maze_y = top_y + y
                 maze_x = top_x + x
                 maze.grid[maze_y][maze_x] = 0xF
+                # Update neighbors to close their walls facing this cell
+                # NORTH neighbor
+                if maze_y > 0:
+                    maze.grid[maze_y - 1][maze_x] |= SOUTH
+
+                # SOUTH neighbor
+                if maze_y < maze.height - 1:
+                    maze.grid[maze_y + 1][maze_x] |= NORTH
+
+                # WEST neighbor
+                if maze_x > 0:
+                    maze.grid[maze_y][maze_x - 1] |= EAST
+
+                # EAST neighbor
+                if maze_x < maze.width - 1:
+                    maze.grid[maze_y][maze_x + 1] |= WEST
 
 
 def place_42_pattern(maze: Maze, path_string: str, entry: Tuple[int, int],

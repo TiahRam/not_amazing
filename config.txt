@@ -1,12 +1,11 @@
 WIDTH=20
-HEIGHT=35
-ENTRY=19,0
-EXIT=19,20
+HEIGHT=20
+ENTRY=0,0
+EXIT=19,19
 OUTPUT_FILE=maze.txt
-VISUAL=maze_visual
-# seed for random generator
-SEED=34
+PERFECT=no
 
-# this is now to toggle perfect maze
-PERFECT=yes
+# misc keys
+VISUAL=maze_visual
+SEED=34
 ajdjasjdas=('yahya', 0, 10)

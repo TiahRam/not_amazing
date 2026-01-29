@@ -27,7 +27,6 @@ def main():
         seed=typed_configs.get("SEED")
     )
     maze = generator.generate()
-    print(f"Maze generated! All cells visited: {maze.all_visited()}")
 
     # 3. Check for perfect config if true or flase
     if not perfect:
@@ -36,17 +35,6 @@ def main():
         print(f"Imperfect maze created 'PERFECT={perfect}'")
     else:
         print(f"Perfect maze created 'PERFECT={perfect}'")
-
-    # 4. Add entry/exit
-    add_entry_exit(maze, entry, exit_)
-
-    # 4 - 1: validate perfect maze
-    if perfect:
-        if validate_perfect_maze(maze):
-            print("The maze is perfect")
-        else:
-            print(f"ERROR: 'PERFECT={perfect}' but the maze is not perfect")
-            sys.exit(1)
 
     # 5. Find the shortest path
     path = find_shortest_path(maze, entry, exit_)
@@ -58,6 +46,10 @@ def main():
 
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
+
+    add_entry_exit(maze, entry, exit_)
+
+    run_visualizer(maze)
 
 
 if __name__ == "__main__":

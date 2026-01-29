@@ -235,8 +235,8 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
         del updated_config_values["PERFECT"]
     else:
         errors.append("In 'PERFECT' configuration line: "
-                      f"'{config_values["PERFECT"]}' is not a valid "
-                      "parsable boolean value. Please use 'True/False',"
+                      f"'{config_values['PERFECT']}' is not a valid "
+                      "parsable boolean value. Please use 'True/False', "
                       "'1/0' or 'Yes/No'")
 
     if errors:

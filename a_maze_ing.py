@@ -7,6 +7,7 @@ from helpers.entry_and_exit import add_entry_exit
 from helpers.output_writing import write_output
 from helpers.imperfect_maze import add_random_loops
 from pathfinding import find_shortest_path
+from visualizer import run_visualizer
 
 
 def main():
@@ -60,6 +61,8 @@ def main():
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
 
+    # 7. visualization
+    run_visualizer(maze, entry, exit_, path)
 
 if __name__ == "__main__":
     main()

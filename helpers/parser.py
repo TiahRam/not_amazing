@@ -162,17 +162,17 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
         successful_entry_parsing = False
         # Checking for the ENTRY coordinates
         try:
-            y = int(splitted_entry[0])
-            x = int(splitted_entry[1])
+            x = int(splitted_entry[0])
+            y = int(splitted_entry[1])
             if x < 0 or y < 0:
                 errors.append("ENTRY coordinates cannot be negative")
-            elif y >= width or x >= height:
-                if y >= width:
+            elif x >= width or y >= height:
+                if x >= width:
                     errors.append(f"In 'ENTRY' coordinates line: "
-                                  f"{y} value is out of WIDTH bounds")
+                                  f"{x} value is out of WIDTH bounds")
                 else:
                     errors.append(f"In 'ENTRY' coordinates line: "
-                                  f"{x} value is out of HEIGHT bounds")
+                                  f"{y} value is out of HEIGHT bounds")
             else:
                 typed_configs["ENTRY"] = (y, x)
                 del updated_config_values["ENTRY"]
@@ -191,17 +191,17 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
         # Checking for the EXIT coordinates
         successful_exit_parsing = False
         try:
-            y = int(splitted_exit[0])
-            x = int(splitted_exit[1])
+            x = int(splitted_exit[0])
+            y = int(splitted_exit[1])
             if x < 0 or y < 0:
                 errors.append("EXIT coordinates cannot be negative")
-            elif y >= width or x >= height:
-                if y >= width:
+            elif x >= width or y >= height:
+                if x >= width:
                     errors.append(f"In 'EXIT' coordinates line: "
-                                  f"{y} value is out of WIDTH bounds")
+                                  f"{x} value is out of WIDTH bounds")
                 else:
                     errors.append(f"In 'EXIT' coordinates line: "
-                                  f"{x} value is out of HEIGHT bounds")
+                                  f"{y} value is out of HEIGHT bounds")
             else:
                 typed_configs["EXIT"] = (y, x)
                 del updated_config_values["EXIT"]

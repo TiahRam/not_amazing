@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+from typing import Optional
 from mazegen.maze import Maze
 
 
-def validate_perfect_maze(maze: Maze) -> bool:
+def validate_perfect_maze(maze: Maze,
+                          blocked_cells: Optional[set] = None) -> bool:
     """
     Validate that maze is perfect (exactly one path between any two points).
     A perfect maze has exactly (width × height - 1) passages.
@@ -12,8 +14,12 @@ def validate_perfect_maze(maze: Maze) -> bool:
     Returns:
         True if maze is perfect, False otherwise
     """
+    if blocked_cells is None:
+        blocked_cells = set()
+
     total_cells = maze.width * maze.height
-    expected_passages = total_cells - 1
+    navigable_cells = total_cells - len(blocked_cells)
+    expected_passages = navigable_cells - 1
 
     # Count actual passages
     actual_passages = count_passages(maze)

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-from visualizer import run_visualizer
 from validation import validate_perfect_maze
 from mazegen.generator import MazeGenerator
 from helpers.parser import first_args_validation, semantic_validation
@@ -8,7 +7,6 @@ from helpers.entry_and_exit import add_entry_exit
 from helpers.output_writing import write_output
 from helpers.imperfect_maze import add_random_loops
 from pathfinding import find_shortest_path
-from pattern42 import place_42_pattern
 
 
 def main():
@@ -33,8 +31,9 @@ def main():
 
     # 3. Check for perfect config if true or flase
     if not perfect:
+        pattern_cells = generator.get_pattern_42_cells()
         loop_number = (maze.width * maze.height) // 10
-        add_random_loops(maze, loop_number)
+        add_random_loops(maze, loop_number, pattern_cells)
         print(f"Imperfect maze created 'PERFECT={perfect}'")
     else:
         print(f"Perfect maze created 'PERFECT={perfect}'")
@@ -42,11 +41,10 @@ def main():
     # 4. Add entry/exit
     add_entry_exit(maze, entry, exit_)
 
-    # 4 - 1: validate perfect maze
+    # 5: validate perfect maze
     if perfect:
-        if validate_perfect_maze(maze):
-            print("The maze is perfect")
-        else:
+        pattern_cells = generator.get_pattern_42_cells()
+        if not validate_perfect_maze(maze, pattern_cells):
             print(f"ERROR: 'PERFECT={perfect}' but the maze is not perfect")
             sys.exit(1)
 
@@ -56,19 +54,11 @@ def main():
     if len(path) > 0:
         print(f"Path: {path[:50]}{'...' if len(path) > 50 else ''}")
 
-    # 5. Place "42" pattern
-    pattern_placed = place_42_pattern(maze, path, entry, exit_)
-    if not pattern_placed:
-        print("WARNING: Cannot place '42' pattern - "
-              "maze too small or path blocks all positions")
-
     # 6. Write output (without path for now)
     write_output(maze, entry, exit_, output_file, path)
 
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
-
-    run_visualizer(maze, entry, exit_, path)
 
 
 if __name__ == "__main__":

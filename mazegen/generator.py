@@ -1,4 +1,3 @@
-
 import random
 from typing import Optional, Tuple, List
 from .maze import Maze
@@ -19,46 +18,109 @@ class MazeGenerator:
         self.height: int = height
         self.seed: Optional[int] = seed
         self.maze: Optional[Maze] = None
+        self._pattern_42_cells: set = set()
 
     def generate(self) -> Maze:
         """
-        Generate the actual maze.
+        Generate the maze.
         Returns:
             Generated Maze object
         """
-        # set random seed if given
+        # Set random seed if given
         if self.seed is not None:
             random.seed(self.seed)
 
-        # Create a new Maze object and pick a starting cell
+        # Create a new Maze object
         self.maze = Maze(self.height, self.width)
+
+        # PLACE "42" PATTERN BEFORE GENERATION
+        placed_pattern = self._place_42_pattern()
+
+        if not placed_pattern:
+            print("Cannot place '42' pattern: Maze too small")
+
+        # Pick a starting cell (not on "42" pattern)
         curr_y = random.randint(0, self.height - 1)
         curr_x = random.randint(0, self.width - 1)
 
-        # mark the starting cell as visited
+        # Make sure start is not on "42" pattern
+        while (curr_y, curr_x) in self._pattern_42_cells:
+            curr_y = random.randint(0, self.height - 1)
+            curr_x = random.randint(0, self.width - 1)
+
+        # Mark the starting cell as visited
         self.maze.mark_visited(curr_y, curr_x)
 
         while not self.maze.all_visited():
-            # the kill phase
-            # Get all unvisited neighbors of the current cell
+            # The kill phase
             unv_cell_neighbors = self.maze.get_unvisited_neighbors(
                 curr_y, curr_x)
 
-            # if there's unvisited neighbors:
-            if unv_cell_neighbors:
-                next_cell = random.choice(unv_cell_neighbors)
+            # Filter out "42" cells from neighbors
+            valid_neighbors = [
+                (ny, nx) for (ny, nx) in unv_cell_neighbors
+                if (ny, nx) not in self._pattern_42_cells
+            ]
+
+            # If there's valid unvisited neighbors:
+            if valid_neighbors:
+                next_cell = random.choice(valid_neighbors)
                 next_y, next_x = next_cell
                 self.maze.remove_wall_between(curr_y, curr_x, next_y, next_x)
                 self.maze.mark_visited(next_y, next_x)
                 curr_y, curr_x = next_y, next_x
-            # if stuck, meaning we all neighbors are visited
             else:
+                # Hunt phase
                 hunt_result = self._hunt()
                 if hunt_result:
                     curr_y, curr_x = hunt_result
                 else:
                     break
+
         return self.maze
+
+    def _place_42_pattern(self) -> bool:
+        """
+        Place '42' pattern before generation (as immutable obstacle).
+        Return:
+            True if '42' pattern is placed successfully, else False
+        """
+        pattern = [
+            [1, 0, 0, 0, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 0, 1, 1, 1],
+            [0, 0, 1, 0, 1, 0, 0],
+            [0, 0, 1, 0, 1, 1, 1]
+        ]
+
+        pattern_height = len(pattern)
+        pattern_width = len(pattern[0])
+
+        # Check if maze is large enough
+        if self.height < pattern_height or self.width < pattern_width:
+            print("Maze too small for '42' pattern (omitted)")
+            return False
+
+        # Calculate center position
+        center_y = (self.height - pattern_height) // 2
+        center_x = (self.width - pattern_width) // 2
+
+        # Place pattern
+        for y in range(pattern_height):
+            for x in range(pattern_width):
+                if pattern[y][x] == 1:
+                    maze_y = center_y + y
+                    maze_x = center_x + x
+
+                    # Set cell to 0xF (all walls closed)
+                    self.maze.grid[maze_y][maze_x] = 0xF
+
+                    # Mark as visited so Hunt & Kill skips it
+                    self.maze.mark_visited(maze_y, maze_x)
+                    self._pattern_42_cells.add((maze_y, maze_x))
+
+        # print(f"Pre-placed '42' pattern at ({center_y}, {center_x})")
+        return True
 
     def _hunt(self) -> Optional[Tuple[int, int]]:
         """
@@ -66,28 +128,36 @@ class MazeGenerator:
         Returns:
             (y, x) coordinates of found cell, or None if all visited
         """
-        # loop through every single cell, row and col until we find unv one
         for y in range(self.maze.height):
             for x in range(self.maze.width):
-                # if we find an unvisited cell,
-                # we check if it has visited neighbors
-                if not self.maze.is_visited(y, x):
-                    visited_n: List[Tuple[int, int]] = []
+                # Skip "42" cells (all walls = 0xF)
+                if (y, x) in self._pattern_42_cells:
+                    continue
 
-                    # we get all nighbors of that unvisited cell
-                    # and add to the visited listed of that unv cell
-                    neighbors = self.maze.get_neighbors(y, x)
-                    for ny, nx in neighbors:
-                        if self.maze.is_visited(ny, nx):
-                            visited_n.append((ny, nx))
-                    # Now, if it has visited neighbors, we choose one random
-                    # Crave path between the two, mark as visited
-                    # And return the coordinates of the unv cell
-                    if visited_n:
-                        choosen_visited_n = random.choice(visited_n)
-                        new_y, new_x = choosen_visited_n
-                        self.maze.remove_wall_between(y, x, new_y, new_x)
-                        self.maze.mark_visited(y, x)
-                        return (y, x)
-        # if not we return None
+                # Skip visited cells
+                if self.maze.is_visited(y, x):
+                    continue
+
+                # Get visited neighbors (excluding "42" cells)
+                visited_n: List[Tuple[int, int]] = []
+                neighbors = self.maze.get_neighbors(y, x)
+
+                for ny, nx in neighbors:
+                    # Only take neighbors that are visited AND not "42" cells
+                    if (self.maze.is_visited(ny, nx) and
+                            (ny, nx) not in self._pattern_42_cells):
+                        visited_n.append((ny, nx))
+
+                # Connect to random visited neighbor
+                if visited_n:
+                    choosen_visited_n = random.choice(visited_n)
+                    new_y, new_x = choosen_visited_n
+                    self.maze.remove_wall_between(y, x, new_y, new_x)
+                    self.maze.mark_visited(y, x)
+                    return (y, x)
+
         return None
+
+    def get_pattern_42_cells(self) -> set:
+        """Retrun the set of cells occupied by the 42 pattern."""
+        return self._pattern_42_cells.copy()

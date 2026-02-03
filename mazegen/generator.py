@@ -96,9 +96,16 @@ class MazeGenerator:
         pattern_height = len(pattern)
         pattern_width = len(pattern[0])
 
-        # Check if maze is large enough
-        if self.height < pattern_height or self.width < pattern_width:
-            print("Maze too small for '42' pattern (omitted)")
+        # Require adequate margins around pattern for connectivity
+        # At least 2 cells on each side to ensure paths can connect
+        min_margin = 2
+        min_width = pattern_width + (min_margin * 2)
+        min_height = pattern_height + (min_margin * 2)
+
+        if self.width < min_width or self.height < min_height:
+            print(f"Maze too small for '42' pattern (need "
+                  f"{min_width}x{min_height}, "
+                  f"got {self.width}x{self.height}) - pattern omitted")
             return False
 
         # Calculate center position

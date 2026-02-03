@@ -116,13 +116,13 @@ def _visualizer_logic(stdscr, maze_obj, entry, exit, path_str, generator):
     stdscr.clear()
     draw_maze(stdscr, maze_obj, entry, exit, path_coords)
 
-    # UI Message at the bottom
-    msg_y = (maze_obj.height * 2) + 1
-    if not generator.place_42_pattern():
-        stdscr.addstr(msg_y, 0,
-                      "Cannot place '42' pattern: Maze too small", curses.A_BOLD)
+    # # UI Message at the bottom
+    # msg_y = (maze_obj.height * 2) + 1
+    # if not generator.place_42_pattern():
+    #     stdscr.addstr(msg_y, 0,
+    #                   "Cannot place '42' pattern: Maze too small", curses.A_BOLD)
 
-    stdscr.addstr(msg_y + 1, 0, "Press any key to exit...")
+    # stdscr.addstr(msg_y + 1, 0, "Press any key to exit...")
 
     stdscr.refresh()
     stdscr.getch()

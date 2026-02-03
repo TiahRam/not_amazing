@@ -6,8 +6,9 @@ from helpers.parser import first_args_validation, semantic_validation
 from helpers.entry_and_exit import add_entry_exit
 from helpers.output_writing import write_output
 from helpers.imperfect_maze import add_random_loops
-from pathfinding import find_shortest_path
-from visualizer import run_visualizer
+from pathfinding.bfs import bfs
+from pathfinding.dfs import dfs
+
 
 
 def main():
@@ -20,6 +21,7 @@ def main():
     exit_ = typed_configs["EXIT"]
     output_file = typed_configs["OUTPUT_FILE"]
     perfect = typed_configs["PERFECT"]
+    algo = typed_configs.get("ALGORITHM", "BFS")
 
     # 2. Generate maze
     generator = MazeGenerator(
@@ -39,18 +41,26 @@ def main():
     else:
         print(f"Perfect maze created 'PERFECT={perfect}'")
 
-    # 4. Add entry/exit
-    add_entry_exit(maze, entry, exit_)
-
-    # 5: validate perfect maze
+    # 4. Validate perfect maze BEFORE adding entry/exit
     if perfect:
         pattern_cells = generator.get_pattern_42_cells()
         if not validate_perfect_maze(maze, pattern_cells):
             print(f"ERROR: 'PERFECT={perfect}' but the maze is not perfect")
             sys.exit(1)
 
+    # 5. Add entry/exit
+    add_entry_exit(maze, entry, exit_)
+
+
     # 5. Find the shortest path
-    path = find_shortest_path(maze, entry, exit_)
+    path = ""
+    if algo.upper() == "DFS":
+        path = dfs(maze, entry, exit_)
+        print("Using DFS algorithm")
+    else:
+        path = bfs(maze, entry, exit_)
+        print("Using BFS algorithm (default)")
+
     print(f"Path found! Length: {len(path)} steps")
     if len(path) > 0:
         print(f"Path: {path[:50]}{'...' if len(path) > 50 else ''}")
@@ -61,8 +71,6 @@ def main():
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
 
-    # 7. visualization
-    run_visualizer(generator, maze, entry, exit_, path)
 
 if __name__ == "__main__":
     main()

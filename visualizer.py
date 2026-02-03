@@ -25,7 +25,8 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
     needed_x = maze_obj.width * 4 + 2
 
     if max_y < needed_y or max_x < needed_x:
-        stdscr.addstr(0, 0, f"Error: Terminal too small! Need {needed_x}x{needed_y}")
+        stdscr.addstr(0, 0, f"Error: Terminal too small! Need "
+                            f"{needed_x}x{needed_y}")
         return
 
     # Our sacred loop
@@ -51,16 +52,16 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
                     stdscr.addstr(sy + 1, sx + 1, "   ", curses.color_pair(2))
             
                 if (y, x) == entry:
-                    stdscr.addstr(sy + 1, sx, "▀▄▀▄", curses.color_pair(5))
+                    stdscr.addstr(sy + 2, sx, "▀▄▀▄", curses.color_pair(5))
                 if (y, x) == exit:
                     stdscr.addstr(sy + 2, sx, "▀▄▀▄", curses.color_pair(4))
 
             # Anchors (top left corner)
-            stdscr.addstr(sy, sx, "+", curses.color_pair(1))
+            stdscr.addstr(sy, sx, " ", curses.color_pair(1))
 
             # Drawing walls based on bitwise checks
             if cell_value & NORTH:
-                stdscr.addstr(sy, sx + 1, "---", curses.color_pair(1))
+                stdscr.addstr(sy, sx + 1, "   ", curses.color_pair(1))
             else:
                 # GAP LOGIC: If I am on path AND North neighbor is on path -> Color the gap
                 if is_path and (y - 1, x) in path_coords:
@@ -69,7 +70,7 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
                     stdscr.addstr(sy, sx + 1, "   ")
 
             if cell_value & WEST:
-                stdscr.addstr(sy + 1, sx, "|", curses.color_pair(1))
+                stdscr.addstr(sy + 1, sx, " ", curses.color_pair(1))
             else:
                 # GAP LOGIC: If I am on path AND West neighbor is on path -> Color the gap
                 if is_path and (y, x - 1) in path_coords:
@@ -78,24 +79,25 @@ def draw_maze(stdscr, maze_obj, entry, exit, path_coords):
                     stdscr.addstr(sy + 1, sx, " ")
 
             if x == maze_obj.width - 1:
-                stdscr.addstr(sy, sx + 4, "+", curses.color_pair(1)) # top right corner
+                stdscr.addstr(sy, sx + 4, " ", curses.color_pair(1)) # top right corner
                 if cell_value & EAST:
-                    stdscr.addstr(sy + 1, sx + 4, "|", curses.color_pair(1))
+                    stdscr.addstr(sy + 1, sx + 4, " ", curses.color_pair(1))
             
             if y == maze_obj.height - 1:
-                stdscr.addstr(sy + 2, sx, "+", curses.color_pair(1)) # bottom left corner
+                stdscr.addstr(sy + 2, sx, " ", curses.color_pair(1)) # bottom left corner
                 if cell_value & SOUTH:
-                    stdscr.addstr(sy + 2, sx + 1, "---", curses.color_pair(1))
+                    stdscr.addstr(sy + 2, sx + 1, "   ", curses.color_pair(1))
 
             # Draw the other corners to seal each cell
-            stdscr.addstr(sy, sx + 4, "+", curses.color_pair(1))
-            stdscr.addstr(sy + 2, sx, "+", curses.color_pair(1))
-            stdscr.addstr(sy + 2, sx + 4, "+", curses.color_pair(1))
+            stdscr.addstr(sy, sx + 4, " ", curses.color_pair(1))
+            stdscr.addstr(sy + 2, sx, " ", curses.color_pair(1))
+            stdscr.addstr(sy + 2, sx + 4, " ", curses.color_pair(1))
 
-def run_visualizer(maze_obj, entry, exit, path_str=""):
-    curses.wrapper(lambda stdscr: _visualizer_logic(stdscr, maze_obj, entry, exit, path_str))
+def run_visualizer(generator, maze_obj, entry, exit, path_str=""):
+    curses.wrapper(lambda stdscr: _visualizer_logic(stdscr, maze_obj, entry,
+                   exit, path_str, generator))
 
-def _visualizer_logic(stdscr, maze_obj, entry, exit, path_str):
+def _visualizer_logic(stdscr, maze_obj, entry, exit, path_str, generator):
     curses.start_color()
     # Color Pair 1 = Green Text on Magenta Background
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLUE)
@@ -113,10 +115,14 @@ def _visualizer_logic(stdscr, maze_obj, entry, exit, path_str):
 
     stdscr.clear()
     draw_maze(stdscr, maze_obj, entry, exit, path_coords)
-    
+
     # UI Message at the bottom
     msg_y = (maze_obj.height * 2) + 1
-    stdscr.addstr(msg_y, 0, "Press any key to exit...")
-    
+    if not generator.place_42_pattern():
+        stdscr.addstr(msg_y, 0,
+                      "Cannot place '42' pattern: Maze too small", curses.A_BOLD)
+
+    stdscr.addstr(msg_y + 1, 0, "Press any key to exit...")
+
     stdscr.refresh()
     stdscr.getch()

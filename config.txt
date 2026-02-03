@@ -1,10 +1,10 @@
 WIDTH=50
-HEIGHT=20
-ENTRY=49,19
-EXIT=0,19
+HEIGHT=50
+ENTRY=0,0
+EXIT=0,49
 OUTPUT_FILE=output.txt
 PERFECT=yes
-# SEED=42
+SEED=34
 
 # misc keys
 VISUAL=maze_visual

@@ -34,7 +34,7 @@ class MazeGenerator:
         self.maze = Maze(self.height, self.width)
 
         # PLACE "42" PATTERN BEFORE GENERATION
-        placed_pattern = self._place_42_pattern()
+        placed_pattern = self.place_42_pattern()
 
         if not placed_pattern:
             print("Cannot place '42' pattern: Maze too small")
@@ -79,7 +79,7 @@ class MazeGenerator:
 
         return self.maze
 
-    def _place_42_pattern(self) -> bool:
+    def place_42_pattern(self) -> bool:
         """
         Place '42' pattern before generation (as immutable obstacle).
         Return:

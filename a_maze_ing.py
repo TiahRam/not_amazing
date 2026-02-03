@@ -62,7 +62,7 @@ def main():
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
 
     # 7. visualization
-    run_visualizer(maze, entry, exit_, path)
+    run_visualizer(generator, maze, entry, exit_, path)
 
 if __name__ == "__main__":
     main()

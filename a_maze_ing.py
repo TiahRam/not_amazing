@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+from visualizer import run_visualizer
 from mazegen.generator import MazeGenerator
 from mazegen.pathfinding import bfs, dfs
 from helpers.parser import first_args_validation, semantic_validation
@@ -69,6 +70,8 @@ def main() -> None:
 
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
+
+    run_visualizer(perfect, generator, maze, entry, exit_, path)
 
 
 if __name__ == "__main__":

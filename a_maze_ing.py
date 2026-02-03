@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
 import sys
-from validation import validate_perfect_maze
 from mazegen.generator import MazeGenerator
+from mazegen.pathfinding import bfs, dfs
 from helpers.parser import first_args_validation, semantic_validation
 from helpers.entry_and_exit import add_entry_exit
 from helpers.output_writing import write_output
 from helpers.imperfect_maze import add_random_loops
-from visualizer import run_visualizer
-from pathfinding.bfs import bfs
-from pathfinding.dfs import dfs
+from helpers.validation import validate_perfect_maze
 
 
-
-def main():
+def main() -> None:
     """Main Program orchestrator"""
     # 1. Parse config
     configs = first_args_validation()
@@ -23,6 +20,7 @@ def main():
     output_file = typed_configs["OUTPUT_FILE"]
     perfect = typed_configs["PERFECT"]
     algo = typed_configs.get("ALGORITHM", "BFS")
+    gen_algo = typed_configs.get("GEN_ALGORITHM", "hunt_and_kill")
 
     # 2. Generate maze
     generator = MazeGenerator(
@@ -30,8 +28,9 @@ def main():
         height=typed_configs["HEIGHT"],
         seed=typed_configs.get("SEED")
     )
-    maze = generator.generate()
-    print(f"Maze generated! All cells visited: {maze.all_visited()}")
+    maze = generator.generate(algorithm=gen_algo)
+    print(f"Maze generated using '{gen_algo}'! "
+          f"All cells visited: {maze.all_visited()}")
 
     # 3. Check for perfect config if true or flase
     if not perfect:
@@ -52,8 +51,7 @@ def main():
     # 5. Add entry/exit
     add_entry_exit(maze, entry, exit_)
 
-
-    # 5. Find the shortest path
+    # 6. Find the shortest path
     path = ""
     if algo.upper() == "DFS":
         path = dfs(maze, entry, exit_)
@@ -71,9 +69,6 @@ def main():
 
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
-
-    # 7. Visualizer
-    run_visualizer(generator, maze, entry, exit_, path)
 
 
 if __name__ == "__main__":

@@ -1,10 +1,12 @@
 import random
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Set
 from .maze import Maze
 
 
 class MazeGenerator:
-    """Generates mazes using Hunt and Kill algorithm."""
+    """
+    Generates mazes using Hunt and Kill or Recursive Backtracker algorithm.
+    """
     def __init__(self, width: int, height: int,
                  seed: Optional[int] = None) -> None:
         """
@@ -18,11 +20,13 @@ class MazeGenerator:
         self.height: int = height
         self.seed: Optional[int] = seed
         self.maze: Optional[Maze] = None
-        self._pattern_42_cells: set = set()
+        self._pattern_42_cells: Set[Tuple[int, int]] = set()
 
-    def generate(self) -> Maze:
+    def generate(self, algorithm: str = "hunt_and_kill") -> Maze:
         """
-        Generate the maze.
+        Generate the maze using specified algorithm.
+        Args:
+            algorithm: "hunt_and_kill" or "recursive_backtracker"
         Returns:
             Generated Maze object
         """
@@ -39,14 +43,31 @@ class MazeGenerator:
         if not placed_pattern:
             print("Cannot place '42' pattern: Maze too small")
 
-        # Pick a starting cell (not on "42" pattern)
+        # Generate using selected algorithm
+        if algorithm == "recursive_backtracker":
+            self._generate_recursive_backtracker()
+        else:
+            self._generate_hunt_and_kill()
+
+        return self.maze
+
+    def _get_valid_start(self) -> Tuple[int, int]:
+        """Get a starting cell that's not on the 42 pattern."""
         curr_y = random.randint(0, self.height - 1)
         curr_x = random.randint(0, self.width - 1)
 
-        # Make sure start is not on "42" pattern
         while (curr_y, curr_x) in self._pattern_42_cells:
             curr_y = random.randint(0, self.height - 1)
             curr_x = random.randint(0, self.width - 1)
+
+        return (curr_y, curr_x)
+
+    def _generate_hunt_and_kill(self) -> None:
+        """Generate maze using Hunt and Kill algorithm."""
+        assert self.maze is not None
+
+        # Pick a starting cell (not on "42" pattern)
+        curr_y, curr_x = self._get_valid_start()
 
         # Mark the starting cell as visited
         self.maze.mark_visited(curr_y, curr_x)
@@ -77,7 +98,35 @@ class MazeGenerator:
                 else:
                     break
 
-        return self.maze
+    def _generate_recursive_backtracker(self) -> None:
+        """Generate maze using Recursive Backtracker (DFS-based) algorithm."""
+        assert self.maze is not None
+
+        # Pick starting cell (not on 42 pattern)
+        start_y, start_x = self._get_valid_start()
+
+        stack: List[Tuple[int, int]] = [(start_y, start_x)]
+        self.maze.mark_visited(start_y, start_x)
+
+        while stack:
+            y, x = stack[-1]
+
+            # Get unvisited neighbors (not 42 cells)
+            neighbors = [
+                (ny, nx) for ny, nx in self.maze.get_neighbors(y, x)
+                if not self.maze.is_visited(ny, nx)
+                and (ny, nx) not in self._pattern_42_cells
+            ]
+
+            if neighbors:
+                # Pick random neighbor, carve passage
+                ny, nx = random.choice(neighbors)
+                self.maze.remove_wall_between(y, x, ny, nx)
+                self.maze.mark_visited(ny, nx)
+                stack.append((ny, nx))
+            else:
+                # Dead end - backtrack
+                stack.pop()
 
     def place_42_pattern(self) -> bool:
         """
@@ -85,6 +134,9 @@ class MazeGenerator:
         Return:
             True if '42' pattern is placed successfully, else False
         """
+        # Maze must be initialized
+        assert self.maze is not None
+
         pattern = [
             [1, 0, 0, 0, 1, 1, 1],
             [1, 0, 0, 0, 0, 0, 1],
@@ -135,23 +187,25 @@ class MazeGenerator:
         Returns:
             (y, x) coordinates of found cell, or None if all visited
         """
-        for y in range(self.maze.height):
-            for x in range(self.maze.width):
+        maze = self.maze
+        assert maze is not None
+        for y in range(maze.height):
+            for x in range(maze.width):
                 # Skip "42" cells (all walls = 0xF)
                 if (y, x) in self._pattern_42_cells:
                     continue
 
                 # Skip visited cells
-                if self.maze.is_visited(y, x):
+                if maze.is_visited(y, x):
                     continue
 
                 # Get visited neighbors (excluding "42" cells)
                 visited_n: List[Tuple[int, int]] = []
-                neighbors = self.maze.get_neighbors(y, x)
+                neighbors = maze.get_neighbors(y, x)
 
                 for ny, nx in neighbors:
                     # Only take neighbors that are visited AND not "42" cells
-                    if (self.maze.is_visited(ny, nx) and
+                    if (maze.is_visited(ny, nx) and
                             (ny, nx) not in self._pattern_42_cells):
                         visited_n.append((ny, nx))
 
@@ -159,12 +213,12 @@ class MazeGenerator:
                 if visited_n:
                     choosen_visited_n = random.choice(visited_n)
                     new_y, new_x = choosen_visited_n
-                    self.maze.remove_wall_between(y, x, new_y, new_x)
-                    self.maze.mark_visited(y, x)
+                    maze.remove_wall_between(y, x, new_y, new_x)
+                    maze.mark_visited(y, x)
                     return (y, x)
 
         return None
 
-    def get_pattern_42_cells(self) -> set:
+    def get_pattern_42_cells(self) -> Set[Tuple[int, int]]:
         """Retrun the set of cells occupied by the 42 pattern."""
         return self._pattern_42_cells.copy()

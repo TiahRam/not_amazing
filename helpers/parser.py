@@ -182,11 +182,11 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
 
         # After parsing coordinates, check if it's at the border:
         if successful_entry_parsing:
-            if not is_at_border(typed_configs["ENTRY"][1],
+            if is_at_border(typed_configs["ENTRY"][1],
                                 typed_configs["ENTRY"][0],
                                 typed_configs["WIDTH"],
                                 typed_configs["HEIGHT"]):
-                errors.append("ENTRY must be at external border of the maze")
+                errors.append("ENTRY must be inside the maze bounds")
 
         # Checking for the EXIT coordinates
         successful_exit_parsing = False
@@ -211,11 +211,11 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
 
         # After parsing coordinates, check if it's at the border:
         if successful_exit_parsing:
-            if not is_at_border(typed_configs["EXIT"][1],
+            if is_at_border(typed_configs["EXIT"][1],
                                 typed_configs["EXIT"][0],
                                 typed_configs["WIDTH"],
                                 typed_configs["HEIGHT"]):
-                errors.append("EXIT must be at external border of the maze")
+                errors.append("EXIT must be inside the maze bounds")
 
     # check if there's any errors and exit
     if errors:

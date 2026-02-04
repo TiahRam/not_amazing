@@ -6,6 +6,7 @@ from mazegen.maze import Maze, NORTH, EAST, SOUTH, WEST # noqa
 from helpers.entry_and_exit import add_entry_exit
 from mazegen.pathfinding import bfs
 from helpers.imperfect_maze import add_random_loops
+from helpers.validation import validate_perfect_maze
 
 
 
@@ -219,33 +220,18 @@ def _visualizer_logic(perfect, generator, stdscr, maze_obj, entry, exit, path_st
             # Cycle solution path colors
             path_color_index = (path_color_index + 1) % len(path_colors)
         elif key == ord('6'):
-            # if perfect:
-            #     perfect = False
-            # else:
-            #     perfect = True
-            # generator._pattern_42_cells = set()
-            # maze_obj = generator.generate()
-            # add_entry_exit(maze_obj, entry, exit)
-            # path_str = bfs(maze_obj, entry, exit)
-            # path_coords = get_path_coordinates(entry, path_str)
-            if perfect:
-                generator._pattern_42_cells = set()
-                maze_obj = generator.generate()
-                add_entry_exit(maze_obj, entry, exit)
-                path_str = bfs(maze_obj, entry, exit)
-                path_coords = get_path_coordinates(entry, path_str)
-                pattern_cells = generator.get_pattern_42_cells()
+            pattern_cells = generator.get_pattern_42_cells()
+            if validate_perfect_maze(maze_obj, pattern_cells):
                 loop_number = (maze_obj.width * maze_obj.height) // 10
                 add_random_loops(maze_obj, loop_number, pattern_cells)
-                perfect = False
+                path_str = bfs(maze_obj, entry, exit)
+                path_coords = get_path_coordinates(entry, path_str)
             else:
                 generator._pattern_42_cells = set()
                 maze_obj = generator.generate()
                 add_entry_exit(maze_obj, entry, exit)
                 path_str = bfs(maze_obj, entry, exit)
                 path_coords = get_path_coordinates(entry, path_str)
-                perfect = True
-
         else:
             # Any other key exits
             break

@@ -7,6 +7,7 @@ class MazeGenerator:
     """
     Generates mazes using Hunt and Kill or Recursive Backtracker algorithm.
     """
+    
     def __init__(self, width: int, height: int,
                  seed: Optional[int] = None) -> None:
         """
@@ -88,6 +89,7 @@ class MazeGenerator:
                 next_cell = random.choice(valid_neighbors)
                 next_y, next_x = next_cell
                 self.maze.remove_wall_between(curr_y, curr_x, next_y, next_x)
+
                 self.maze.mark_visited(next_y, next_x)
                 curr_y, curr_x = next_y, next_x
             else:

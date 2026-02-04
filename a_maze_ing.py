@@ -70,8 +70,10 @@ def main() -> None:
 
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
-
-    run_visualizer(perfect, generator, maze, entry, exit_, path)
+    try:
+        run_visualizer(perfect, generator, maze, entry, exit_, path)
+    except KeyboardInterrupt:
+        print()
 
 
 if __name__ == "__main__":

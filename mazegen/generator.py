@@ -45,7 +45,7 @@ class MazeGenerator:
             print("Cannot place '42' pattern: Maze too small")
 
         # Generate using selected algorithm
-        if algorithm == "recursive_backtracker":
+        if algorithm.lower() == "recursive_backtracker":
             self._generate_recursive_backtracker()
         else:
             self._generate_hunt_and_kill()

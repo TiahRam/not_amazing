@@ -1,1 +1,4 @@
 # requirements for pip package manager
+flake8>=7.3.0
+mypy>=1.8.0
+pyfiglet>=1.0.0

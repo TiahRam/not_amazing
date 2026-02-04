@@ -6,8 +6,6 @@ CONFIG ?= config.txt
 # Install project dependencies
 install:
 	pip install -r requirements.txt
-	pip install flake8 mypy  # for linting
-	pip install pyfiglet
 
 # Run the main script
 run:

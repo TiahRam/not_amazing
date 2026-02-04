@@ -256,7 +256,7 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
         "mramidam & mnassiri",
         curses.A_BLINK | curses.A_BOLD | curses.color_pair(6),
     )
-    stdscr.addstr("\n\nPRESS ANY KEY TO CONTINUE...")
+    stdscr.addstr("\n\nPRESS ANY KEY TO START...")
     stdscr.getch()
     stdscr.refresh()
     stdscr.clear()
@@ -302,8 +302,8 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
             stdscr.addstr(
                 msg_y,
                 0,
-                "Cannot place '42' pattern: Maze too small",
-                curses.A_BOLD | curses.A_BLINK,
+                "Cannot place '42' pattern: Maze too small!",
+                curses.A_BOLD | curses.A_BLINK | curses.color_pair(5),
             )
 
         stdscr.refresh()

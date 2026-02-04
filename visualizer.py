@@ -296,7 +296,7 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
         stdscr.addstr(
             msg_y + 5, 0, "5. Change solution path colors", curses.A_BOLD
         )
-        stdscr.addstr(msg_y + 16, 0, "6. Play StarWars lmao", curses.A_BOLD)
+        stdscr.addstr(msg_y + 6, 0, "6. Play StarWars lmao", curses.A_BOLD)
         stdscr.addstr(msg_y + 8, 0, "Press any other key to exit...")
         if not generator.place_42_pattern():
             stdscr.addstr(

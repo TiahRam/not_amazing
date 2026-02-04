@@ -1,10 +1,10 @@
 import random
-from typing import Optional
+from typing import Optional, Any
 from mazegen.maze import Maze, NORTH, EAST, SOUTH, WEST
 
 
 def add_random_loops(maze: Maze, num_loops: int = 5,
-                     blocked_cells: Optional[set] = None) -> None:
+                     blocked_cells: Optional[Any] = None) -> None:
     """
     Add random loops by removing walls.
     Args:

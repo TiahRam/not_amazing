@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from typing import Optional
+from typing import Optional, Any
 from mazegen.maze import Maze
 
 
-def validate_perfect_maze(maze: Maze,
-                          blocked_cells: Optional[set] = None) -> bool:
+def validate_perfect_maze(
+        maze: Maze,
+        blocked_cells: Optional[Any] = None) -> bool:
     """
     Validate that maze is perfect (exactly one path between any two points).
     A perfect maze has exactly (width × height - 1) passages.

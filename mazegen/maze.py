@@ -27,10 +27,10 @@ class Maze:
         # Fill all the grid with all closed wall
         self.grid: List[List[int]] = []
         for _ in range(height):
-            row: List[int] = []
+            row_: List[int] = []
             for _ in range(width):
-                row.append(0xF)
-            self.grid.append(row)
+                row_.append(0xF)
+            self.grid.append(row_)
 
         # All the cells are not visited by default
         self.visited: List[List[bool]] = []

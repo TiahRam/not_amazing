@@ -7,7 +7,7 @@ class MazeGenerator:
     """
     Generates mazes using Hunt and Kill or Recursive Backtracker algorithm.
     """
-    
+
     def __init__(self, width: int, height: int,
                  seed: Optional[int] = None) -> None:
         """

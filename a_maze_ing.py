@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-from visualizer import run_visualizer
 from mazegen.generator import MazeGenerator
 from mazegen.pathfinding import bfs, dfs
 from helpers.parser import first_args_validation, semantic_validation
@@ -8,6 +7,7 @@ from helpers.entry_and_exit import add_entry_exit
 from helpers.output_writing import write_output
 from helpers.imperfect_maze import add_random_loops
 from helpers.validation import validate_perfect_maze
+from helpers.visualizer import run_visualizer
 
 
 def main() -> None:

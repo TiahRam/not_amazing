@@ -240,7 +240,7 @@ def _show_resize_error(stdscr: Any) -> None:
         stdscr.refresh()
         stdscr.getch()
     except curses.error:
-        pass  # If even this fails, just continue
+        pass
 
 
 def run_visualizer(perfect: bool, generator: MazeGenerator, maze_obj: Maze,

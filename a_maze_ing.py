@@ -73,7 +73,7 @@ def main() -> None:
     try:
         run_visualizer(perfect, generator, maze, entry, exit_, path, gen_algo)
     except KeyboardInterrupt:
-        print()
+        return
 
 
 if __name__ == "__main__":

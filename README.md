@@ -33,6 +33,26 @@ python -m build
 pip install dist/mazegen-1.0.0-py3-none-any.whl
 ```
 
+### Building and Installing in a Virtual Environment
+
+```bash
+# 1. Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+
+# 2. Install build tools
+pip install build
+
+# 3. Build the package (creates dist/ in project folder)
+python -m build
+
+# 4. Install the package into the venv
+pip install dist/mazegen-1.0.0-py3-none-any.whl
+
+# 5. Test it works
+python -c "from mazegen import MazeGenerator; print('Package installed successfully!')"
+```
+
 ## Config File Format
 
 ```text

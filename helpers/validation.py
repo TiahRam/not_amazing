@@ -58,32 +58,3 @@ def count_passages(maze: Maze) -> int:
                     passage_count += 1
 
     return passage_count
-
-
-def get_validation_message(maze: Maze) -> str:
-    """
-    Get detailed validation message for debugging.
-    Args:
-        maze: The Maze object
-    Returns:
-        Formatted message string
-    """
-    total_cells = maze.width * maze.height
-    expected_passages = total_cells - 1
-    actual_passages = count_passages(maze)
-
-    msg = "Maze Validation:\n"
-    msg += f"- Total cells: {total_cells}\n"
-    msg += f"- Expected passages (for perfect): {expected_passages}\n"
-    msg += f"- Actual passages: {actual_passages}\n"
-
-    if actual_passages == expected_passages:
-        msg += "PERFECT MAZE!"
-    elif actual_passages > expected_passages:
-        extra = actual_passages - expected_passages
-        msg += f"IMPERFECT MAZE (+{extra} extra passages = loops)"
-    else:
-        missing = expected_passages - actual_passages
-        msg += f"INVALID MAZE (-{missing} passages = disconnected)"
-
-    return msg

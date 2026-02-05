@@ -174,6 +174,17 @@ def draw_maze(stdscr: Any, maze_obj: Maze, entry: Tuple[int, int],
             stdscr.addstr(sy + 2, sx + 4, " ", curses.color_pair(1))
 
 
+def _show_resize_error(stdscr: Any) -> None:
+    """Display error message when terminal is resized during drawing."""
+    stdscr.clear()
+    try:
+        stdscr.addstr(0, 0, "Please do not resize the terminal while viewing the maze!")
+        stdscr.refresh()
+        stdscr.getch()
+    except curses.error:
+        pass  # If even this fails, just continue
+
+
 def run_visualizer(perfect: bool, generator: MazeGenerator, maze_obj: Maze,
                    entry: Tuple[int, int], exit: Tuple[int, int],
                    path_str: Any = "",
@@ -255,102 +266,112 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
         return
 
     # title screen on startup
-    result = pyfiglet.figlet_format("a-maze-ing", font="slant")
-    stdscr.addstr(result, curses.color_pair(6) | curses.A_BOLD)
-    stdscr.addstr("\nProject by: ")
-    stdscr.addstr(
-        "mramidam & mnassiri",
-        curses.A_BLINK | curses.A_BOLD | curses.color_pair(6),
-    )
-    stdscr.addstr("\n\nPRESS ANY KEY TO START...")
-    stdscr.getch()
-    stdscr.refresh()
-    stdscr.clear()
+    try:
+        result = pyfiglet.figlet_format("a-maze-ing", font="slant")
+        stdscr.addstr(result, curses.color_pair(6) | curses.A_BOLD)
+        stdscr.addstr("\nProject by: ")
+        stdscr.addstr(
+            "mramidam & mnassiri",
+            curses.A_BLINK | curses.A_BOLD | curses.color_pair(6),
+        )
+        stdscr.addstr("\n\nPRESS ANY KEY TO START...")
+        stdscr.getch()
+        stdscr.refresh()
+        stdscr.clear()
+    except curses.error:
+        _show_resize_error(stdscr)
 
     # solution animation on startup
     if show_solution:
-        animate_solution(stdscr, maze_obj, entry, exit, path_coords_list,
-                         curses.color_pair(5))
+        try:
+            animate_solution(stdscr, maze_obj, entry, exit, path_coords_list,
+                             curses.color_pair(5))
+        except curses.error:
+            _show_resize_error(stdscr)
 
     # Main loop
     while True:
-        # Update color pairs based on current selections
-        fg, bg = wall_colors[wall_color_index]
-        curses.init_pair(1, fg, bg)
-        fg, bg = pattern_colors[pattern_color_index]
-        curses.init_pair(3, fg, bg)
-        fg, bg = path_colors[path_color_index]
-        curses.init_pair(2, fg, bg)
+        try:
+            # Update color pairs based on current selections
+            fg, bg = wall_colors[wall_color_index]
+            curses.init_pair(1, fg, bg)
+            fg, bg = pattern_colors[pattern_color_index]
+            curses.init_pair(3, fg, bg)
+            fg, bg = path_colors[path_color_index]
+            curses.init_pair(2, fg, bg)
 
-        stdscr.clear()
+            stdscr.clear()
 
-        # Draw maze with or without solution based on show_solution
-        if show_solution:
-            draw_maze(stdscr, maze_obj, entry, exit, path_coords_set)
-        else:
-            draw_maze(stdscr, maze_obj, entry, exit, set())
-
-        # Menu at the bottom
-        msg_y = (maze_obj.height * 2) + 1
-        stdscr.addstr(msg_y + 1, 0, "1. Re-generate a mew maze", curses.A_BOLD)
-        stdscr.addstr(msg_y + 2, 0, "2. Show/Hide the solution", curses.A_BOLD)
-        stdscr.addstr(
-            msg_y + 3, 0, "3. Change maze wall colors", curses.A_BOLD
-        )
-        stdscr.addstr(
-            msg_y + 4, 0, '4. Change "42" Pattern colors', curses.A_BOLD
-        )
-        stdscr.addstr(
-            msg_y + 5, 0, "5. Change solution path colors", curses.A_BOLD
-        )
-        stdscr.addstr(msg_y + 7, 0, "Press any other key to exit...")
-        if not generator.place_42_pattern():
-            stdscr.addstr(
-                msg_y,
-                0,
-                "Cannot place '42' pattern: Maze too small!",
-                curses.A_BOLD | curses.A_BLINK | curses.color_pair(5),
-            )
-
-        stdscr.refresh()
-        key = stdscr.getch()
-
-        if key == ord("1"):
-            # Re-generate a new maze
-            generator._pattern_42_cells = set()
-            maze_obj = generator.generate(algorithm=gen_algo)
-            add_entry_exit(maze_obj, entry, exit)
-            if not perfect:
-                pattern_cells = generator.get_pattern_42_cells()
-                loop_number = (maze_obj.width * maze_obj.height) // 10
-                add_random_loops(maze_obj, loop_number, pattern_cells)
-            path_str = bfs(maze_obj, entry, exit)
-
-            # Recalculate coordinates
-            path_coords_list = get_path_coordinates(entry, path_str)
-            path_coords_set = set(path_coords_list)
-
-            # Animate solutuon only
+            # Draw maze with or without solution based on show_solution
             if show_solution:
-                animate_solution(
-                    stdscr, maze_obj, entry, exit, path_coords_list,
-                    curses.color_pair(5)
+                draw_maze(stdscr, maze_obj, entry, exit, path_coords_set)
+            else:
+                draw_maze(stdscr, maze_obj, entry, exit, set())
+
+            # Menu at the bottom
+            msg_y = (maze_obj.height * 2) + 1
+            stdscr.addstr(msg_y + 1, 0, "1. Re-generate a mew maze", curses.A_BOLD)
+            stdscr.addstr(msg_y + 2, 0, "2. Show/Hide the solution", curses.A_BOLD)
+            stdscr.addstr(
+                msg_y + 3, 0, "3. Change maze wall colors", curses.A_BOLD
+            )
+            stdscr.addstr(
+                msg_y + 4, 0, '4. Change "42" Pattern colors', curses.A_BOLD
+            )
+            stdscr.addstr(
+                msg_y + 5, 0, "5. Change solution path colors", curses.A_BOLD
+            )
+            stdscr.addstr(msg_y + 7, 0, "Press any other key to exit...")
+            if not generator.place_42_pattern():
+                stdscr.addstr(
+                    msg_y,
+                    0,
+                    "Cannot place '42' pattern: Maze too small!",
+                    curses.A_BOLD | curses.A_BLINK | curses.color_pair(5),
                 )
 
-        elif key == ord("2"):
-            # Toggle solution visibility
-            show_solution = not show_solution
-        elif key == ord("3"):
-            # Cycle wall colors
-            wall_color_index = (wall_color_index + 1) % len(wall_colors)
-        elif key == ord("4"):
-            # Cycle 42 pattern colors
-            pattern_color_index = (pattern_color_index + 1) % len(
-                pattern_colors
-            )
-        elif key == ord("5"):
-            # Cycle solution path colors
-            path_color_index = (path_color_index + 1) % len(path_colors)
-        else:
-            # Any other key exits
-            break
+            stdscr.refresh()
+            key = stdscr.getch()
+
+            if key == ord("1"):
+                # Re-generate a new maze
+                generator._pattern_42_cells = set()
+                maze_obj = generator.generate(algorithm=gen_algo)
+                add_entry_exit(maze_obj, entry, exit)
+                if not perfect:
+                    pattern_cells = generator.get_pattern_42_cells()
+                    loop_number = (maze_obj.width * maze_obj.height) // 10
+                    add_random_loops(maze_obj, loop_number, pattern_cells)
+                path_str = bfs(maze_obj, entry, exit)
+
+                # Recalculate coordinates
+                path_coords_list = get_path_coordinates(entry, path_str)
+                path_coords_set = set(path_coords_list)
+
+                # Animate solutuon only
+                if show_solution:
+                    animate_solution(
+                        stdscr, maze_obj, entry, exit, path_coords_list,
+                        curses.color_pair(5)
+                    )
+
+            elif key == ord("2"):
+                # Toggle solution visibility
+                show_solution = not show_solution
+            elif key == ord("3"):
+                # Cycle wall colors
+                wall_color_index = (wall_color_index + 1) % len(wall_colors)
+            elif key == ord("4"):
+                # Cycle 42 pattern colors
+                pattern_color_index = (pattern_color_index + 1) % len(
+                    pattern_colors
+                )
+            elif key == ord("5"):
+                # Cycle solution path colors
+                path_color_index = (path_color_index + 1) % len(path_colors)
+            else:
+                # Any other key exits
+                break
+        except curses.error:
+            _show_resize_error(stdscr)
+            continue

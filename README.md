@@ -17,20 +17,31 @@ A-Maze-Ing is a command-line maze generator that creates perfect or imperfect ma
 ### Running the CLI
 
 ```bash
+python3 a_maze_ing.py config.txt
+```
+Or
+```bash
 ./a_maze_ing.py config.txt
 ```
-
 ### Installing the Package
 
+**Using the wheel (recommended):**
 ```bash
 pip install mazegen-1.0.0-py3-none-any.whl
 ```
+
+**Using the source distribution (tar.gz):**
+```bash
+pip install mazegen-1.0.0.tar.gz
+```
+
+> **Note:** The wheel (`.whl`) is faster to install since it's pre-built. The source distribution (`.tar.gz`) will be built during installation, which may take slightly longer but works on all platforms.
 
 Or build from source:
 ```bash
 pip install build
 python -m build
-pip install dist/mazegen-1.0.0-py3-none-any.whl
+pip install dist/mazegen-1.0.0-py3-none-any.whl  # or dist/mazegen-1.0.0.tar.gz
 ```
 
 ### Building and Installing in a Virtual Environment
@@ -53,20 +64,21 @@ pip install dist/mazegen-1.0.0-py3-none-any.whl
 python -c "from mazegen import MazeGenerator; print('Package installed successfully!')"
 ```
 
-## Config File Format
+## Config File Format Description
 
 ```text
 # required
-WIDTH=30              # Maze width in cells (required)
-HEIGHT=30             # Maze height in cells (required)
-ENTRY=0,0             # Entry point x,y (required, must be on border)
-EXIT=0,29             # Exit point x,y (required, must be on border)
-OUTPUT_FILE=maze.txt  # Output file path (required)
-PERFECT=yes           # yes/no - Perfect maze or add loops (required)
+WIDTH=30                                    # Maze width in cells (required)
+HEIGHT=30                                   # Maze height in cells (required)
+ENTRY=0,0                                   # Entry point x,y (required, must be on border)
+EXIT=0,29                                   # Exit point x,y (required, must be on border)
+OUTPUT_FILE=maze.txt                        # Output file path (required)
+PERFECT=yes                                 # yes/no - Perfect maze or add loops (required)
 
 # optional
-SEED=42               # Random seed for reproducibility (optional)
-ALGORITHM=BFS         # BFS or DFS for pathfinding (optional, default: BFS)
+SEED=42                                     # Random seed for reproducibility (optional)
+ALGORITHM=BFS                               # BFS or DFS for pathfinding (optional, default: BFS)
+GEN_ALGORITHM=RECURSIVE_BACKTRACKER         # Another algo for maze generation (optional)
 ```
 
 ## Algorithm Choice: Hunt and Kill
@@ -81,8 +93,9 @@ We chose the **Hunt and Kill algorithm** for the following reasons:
 We also choose **BFS and DFS** for the following reasons:
 
 1. **Easy to implement and easy to understand**
-2. Another reason
-3. More other reasons
+2. **Very intuitive**
+3. **BFS always find the path**
+4. **DFS is memory efficient and faster exploration: Only track one path at a time**
 
 ## Reusable Code: mazegen Package
 
@@ -114,12 +127,15 @@ print(path)  # "EESSSWW..."
 ### References
 - [Hunt and Kill Algorithm - Jamis Buck](https://weblog.jamisbuck.org/2011/1/24/maze-generation-hunt-and-kill-algorithm) - Algorithm explanation and visualization
 - [Maze Algorithms - Jamis Buck](https://www.jamisbuck.org/mazes/) - Interactive maze algorithm demos
+- [Randomized dept-first search AKA recursive backtracker](https://en.wikipedia.org/wiki/Maze_generation_algorithm#Randomized_depth-first_search) - Algorithm explanation
+- [Curses — Terminal handling for character-cell displays](https://docs.python.org/3/library/curses.html) - Terminal visualization display
+- [Google](https://www.google.com/) - General search
 
 ### AI Usage
 AI assistance (Claude/Gemini) was used for:
-- **Debugging** - Identifying issues with maze connectivity and validation
-- **Code organization** - Structuring the package for pip distribution
-- **Documentation** - Generating docstrings and README content
+- **Debugging** - Help identifying issues with maze connectivity and validation
+- **Organization** - Structuring the package for pip distribution
+- **Documentation** - Structuring the readme for better visual presentation
 
 All algorithm implementation and core logic was written by the team.
 
@@ -131,12 +147,13 @@ All algorithm implementation and core logic was written by the team.
 |--------|------------------|
 | mramidam | Maze generation, pathfinding (BFS/DFS), package structure |
 | mnassiri | Visualization |
-| Both | Initial parsing implementation |
+| Both | Initial parsing implementation, bonus implementation |
 
 ### Planning Evolution
 1. **Phase 1**: Config parsing (collaborative)
 2. **Phase 2**: Split work - maze generation vs visualization
 3. **Phase 3**: Integration and testing (collaborative)
+4. **Phase 4**: Adding bonus for the project (collaborative)
 
 ### What Worked Well
 - Clear separation of concerns between modules
@@ -151,3 +168,4 @@ All algorithm implementation and core logic was written by the team.
 - Python 3.10+
 - Git for version control
 - VSCode/vim as IDE
+- pyfiglet for title screen

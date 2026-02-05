@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""Maze visualizer module using curses for terminal-based rendering.
+
+This module provides functions to display and animate maze solutions
+in the terminal using the curses library. It includes interactive
+features for regenerating mazes and customizing colors.
+"""
 
 import curses
 import pyfiglet
@@ -12,6 +18,19 @@ from helpers.imperfect_maze import add_random_loops
 
 def get_path_coordinates(entry: Tuple[int, int],
                          path_str: Any) -> List[Tuple[int, int]]:
+    """Convert a path string into a list of coordinate tuples.
+
+    Takes a starting position and a string of directional moves (N, S, E, W)
+    and returns the complete list of coordinates visited along the path.
+
+    Args:
+        entry: Starting coordinate as (row, col) tuple.
+        path_str: String of directional moves, e.g., "NNESSW".
+
+    Returns:
+        List of (row, col) tuples representing each position in the path,
+        including the starting position.
+    """
     coords = []
     curr_y, curr_x = entry
     coords.append((curr_y, curr_x))  # Add start
@@ -32,6 +51,22 @@ def animate_solution(stdscr: Any, maze_obj: Maze,
                      entry: Tuple[int, int], exit: Tuple[int, int],
                      path_coords_list: List[Tuple[int, int]],
                      entry_pair: Any = None) -> None:
+    """Animate the solution path through the maze.
+
+    Draws the maze and then animates the solution path cell by cell,
+    creating a visual effect of the path being traced through the maze.
+
+    Args:
+        stdscr: The curses window object for drawing.
+        maze_obj: The Maze object containing the maze structure.
+        entry: Entry point coordinates as (row, col) tuple.
+        exit: Exit point coordinates as (row, col) tuple.
+        path_coords_list: List of (row, col) tuples representing the solution.
+        entry_pair: Optional curses color pair for the entry marker.
+
+    Raises:
+        curses.error: If terminal is resized during animation.
+    """
     # First, ensure the maze is drawn CLEAN
     stdscr.clear()
     draw_maze(stdscr, maze_obj, entry, exit, set())
@@ -93,6 +128,21 @@ def animate_solution(stdscr: Any, maze_obj: Maze,
 
 def draw_maze(stdscr: Any, maze_obj: Maze, entry: Tuple[int, int],
               exit: Tuple[int, int], path_coords: Any) -> None:
+    """Draw the complete maze on the terminal screen.
+
+    Renders the maze structure including walls, entry/exit points,
+    the 42 pattern blocks, and optionally the solution path.
+
+    Args:
+        stdscr: The curses window object for drawing.
+        maze_obj: The Maze object containing the maze structure.
+        entry: Entry point coordinates as (row, col) tuple.
+        exit: Exit point coordinates as (row, col) tuple.
+        path_coords: Set of (row, col) tuples to highlight as the solution path
+
+    Raises:
+        curses.error: If terminal is resized during drawing.
+    """
     curses.curs_set(0)  # Hides our terminal cursor
 
     max_y, max_x = stdscr.getmaxyx()
@@ -175,7 +225,14 @@ def draw_maze(stdscr: Any, maze_obj: Maze, entry: Tuple[int, int],
 
 
 def _show_resize_error(stdscr: Any) -> None:
-    """Display error message when terminal is resized during drawing."""
+    """Display a user-friendly error message when terminal is resized.
+
+    Shows a message asking the user not to resize the terminal during
+    maze visualization and waits for a keypress to continue.
+
+    Args:
+        stdscr: The curses window object for drawing.
+    """
     stdscr.clear()
     try:
         stdscr.addstr(0, 0, "Please do not resize the terminal "
@@ -190,6 +247,20 @@ def run_visualizer(perfect: bool, generator: MazeGenerator, maze_obj: Maze,
                    entry: Tuple[int, int], exit: Tuple[int, int],
                    path_str: Any = "",
                    gen_algo: str = "hunt_and_kill") -> None:
+    """Launch the interactive maze visualizer.
+
+    Initializes the curses environment and starts the visualization loop.
+    This is the main entry point for the visualizer module.
+
+    Args:
+        perfect: Whether to generate perfect mazes (no loops).
+        generator: MazeGenerator instance for regenerating mazes.
+        maze_obj: The initial Maze object to display.
+        entry: Entry point coordinates as (row, col) tuple.
+        exit: Exit point coordinates as (row, col) tuple.
+        path_str: Solution path as directional string. Defaults to "".
+        gen_algo: Algorithm for maze generation. Defaults to "hunt_and_kill".
+    """
     curses.wrapper(
         lambda stdscr: _visualizer_logic(
             perfect, generator, stdscr, maze_obj, entry, exit, path_str,
@@ -202,6 +273,24 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
                       maze_obj: Maze, entry: Tuple[int, int],
                       exit: Tuple[int, int],
                       path_str: Any, gen_algo: str = "hunt_and_kill") -> None:
+    """Core visualization logic wrapped by curses.wrapper.
+
+    Handles the main visualization loop including:
+    - Title screen display
+    - Solution animation
+    - Interactive menu for maze regeneration and color changes
+    - Error handling for terminal resize events
+
+    Args:
+        perfect: Whether to generate perfect mazes (no loops).
+        generator: MazeGenerator instance for regenerating mazes.
+        stdscr: The curses window object provided by curses.wrapper.
+        maze_obj: The Maze object to display.
+        entry: Entry point coordinates as (row, col) tuple.
+        exit: Exit point coordinates as (row, col) tuple.
+        path_str: Solution path as directional string.
+        gen_algo: Algorithm for maze generation. Defaults to "hunt_and_kill".
+    """
     curses.start_color()
     # Color Pair 1 = Green Text on Magenta Background
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLUE)

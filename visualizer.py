@@ -178,7 +178,8 @@ def _show_resize_error(stdscr: Any) -> None:
     """Display error message when terminal is resized during drawing."""
     stdscr.clear()
     try:
-        stdscr.addstr(0, 0, "Please do not resize the terminal while viewing the maze!")
+        stdscr.addstr(0, 0, "Please do not resize the terminal "
+                      "while viewing the maze!")
         stdscr.refresh()
         stdscr.getch()
     except curses.error:
@@ -310,8 +311,10 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
 
             # Menu at the bottom
             msg_y = (maze_obj.height * 2) + 1
-            stdscr.addstr(msg_y + 1, 0, "1. Re-generate a mew maze", curses.A_BOLD)
-            stdscr.addstr(msg_y + 2, 0, "2. Show/Hide the solution", curses.A_BOLD)
+            stdscr.addstr(msg_y + 1, 0, "1. Re-generate a mew maze",
+                          curses.A_BOLD)
+            stdscr.addstr(msg_y + 2, 0, "2. Show/Hide the solution",
+                          curses.A_BOLD)
             stdscr.addstr(
                 msg_y + 3, 0, "3. Change maze wall colors", curses.A_BOLD
             )

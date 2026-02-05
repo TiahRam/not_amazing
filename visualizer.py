@@ -30,7 +30,8 @@ def get_path_coordinates(entry: Tuple[int, int],
 
 def animate_solution(stdscr: Any, maze_obj: Maze,
                      entry: Tuple[int, int], exit: Tuple[int, int],
-                     path_coords_list: List[Tuple[int, int]]) -> None:
+                     path_coords_list: List[Tuple[int, int]],
+                     entry_pair: Any = None) -> None:
     # First, ensure the maze is drawn CLEAN
     stdscr.clear()
     draw_maze(stdscr, maze_obj, entry, exit, set())
@@ -46,6 +47,9 @@ def animate_solution(stdscr: Any, maze_obj: Maze,
     sy = prev_y * 2
     sx = prev_x * 4
     stdscr.addstr(sy + 1, sx + 1, "   ", path_pair)
+    # Redraw Entry graphic over the path color
+    if entry_pair is not None:
+        stdscr.addstr(sy + 1, sx + 1, "▄▀▄", entry_pair)
     stdscr.refresh()
     curses.napms(30)
 
@@ -172,10 +176,12 @@ def draw_maze(stdscr: Any, maze_obj: Maze, entry: Tuple[int, int],
 
 def run_visualizer(perfect: bool, generator: MazeGenerator, maze_obj: Maze,
                    entry: Tuple[int, int], exit: Tuple[int, int],
-                   path_str: Any = "") -> None:
+                   path_str: Any = "",
+                   gen_algo: str = "hunt_and_kill") -> None:
     curses.wrapper(
         lambda stdscr: _visualizer_logic(
-            perfect, generator, stdscr, maze_obj, entry, exit, path_str
+            perfect, generator, stdscr, maze_obj, entry, exit, path_str,
+            gen_algo
         )
     )
 
@@ -183,7 +189,7 @@ def run_visualizer(perfect: bool, generator: MazeGenerator, maze_obj: Maze,
 def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
                       maze_obj: Maze, entry: Tuple[int, int],
                       exit: Tuple[int, int],
-                      path_str: Any) -> None:
+                      path_str: Any, gen_algo: str = "hunt_and_kill") -> None:
     curses.start_color()
     # Color Pair 1 = Green Text on Magenta Background
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLUE)
@@ -263,7 +269,8 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
 
     # solution animation on startup
     if show_solution:
-        animate_solution(stdscr, maze_obj, entry, exit, path_coords_list)
+        animate_solution(stdscr, maze_obj, entry, exit, path_coords_list,
+                         curses.color_pair(5))
 
     # Main loop
     while True:
@@ -296,8 +303,7 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
         stdscr.addstr(
             msg_y + 5, 0, "5. Change solution path colors", curses.A_BOLD
         )
-        stdscr.addstr(msg_y + 6, 0, "6. Play StarWars lmao", curses.A_BOLD)
-        stdscr.addstr(msg_y + 8, 0, "Press any other key to exit...")
+        stdscr.addstr(msg_y + 7, 0, "Press any other key to exit...")
         if not generator.place_42_pattern():
             stdscr.addstr(
                 msg_y,
@@ -312,7 +318,7 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
         if key == ord("1"):
             # Re-generate a new maze
             generator._pattern_42_cells = set()
-            maze_obj = generator.generate()
+            maze_obj = generator.generate(algorithm=gen_algo)
             add_entry_exit(maze_obj, entry, exit)
             if not perfect:
                 pattern_cells = generator.get_pattern_42_cells()
@@ -324,10 +330,11 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
             path_coords_list = get_path_coordinates(entry, path_str)
             path_coords_set = set(path_coords_list)
 
-            # --- ANIMATE SOLUTION ONLY ---
+            # Animate solutuon only
             if show_solution:
                 animate_solution(
-                    stdscr, maze_obj, entry, exit, path_coords_list
+                    stdscr, maze_obj, entry, exit, path_coords_list,
+                    curses.color_pair(5)
                 )
 
         elif key == ord("2"):

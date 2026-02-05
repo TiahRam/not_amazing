@@ -71,7 +71,7 @@ def main() -> None:
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
     try:
-        run_visualizer(perfect, generator, maze, entry, exit_, path)
+        run_visualizer(perfect, generator, maze, entry, exit_, path, gen_algo)
     except KeyboardInterrupt:
         print()
 

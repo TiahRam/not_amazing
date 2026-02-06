@@ -16,7 +16,6 @@ class Maze:
     """Represents a maze grid with wall operations."""
     def __init__(self, height: int, width: int) -> None:
         """Maze Constructor
-
         Args:
             width: grid width
             height: grid height
@@ -45,6 +44,11 @@ class Maze:
         Remove wall between 2 cells:
         Removes the wall on cell 1 facing cell 2
         Removes the wall on cell 2 facing cell 1 (keep them in sync!)
+        Args:
+            y1: int y coordinate of the initial cell
+            x1: int x coordinate of the initial cell
+            y2: int y coordinate of new cell
+            x2: int x coordinate of new cell
         """
         # Check if they are neighbors
         y_distance = y2 - y1
@@ -69,7 +73,13 @@ class Maze:
             self.grid[y2][x2] &= ~EAST
 
     def get_neighbors(self, y: int, x: int) -> List[Tuple[int, int]]:
-        """Get all valid neighbors within bounds."""
+        """Get all valid neighbors within bounds
+        Args:
+            y: int y coordinate
+            x: int x coordinate
+        Return:
+            List of Tuple coordinates of all nighbors of (y, x)
+        """
         valid_neighbors: List[Tuple[int, int]] = []
 
         if y > 0:
@@ -88,7 +98,13 @@ class Maze:
         return valid_neighbors
 
     def get_unvisited_neighbors(self, y: int, x: int) -> List[Tuple[int, int]]:
-        """Get neighbors that haven't been visited yet"""
+        """Get neighbors that haven't been visited yet
+        Args:
+            y: int y coordinate
+            x: int x coordinate
+        Return:
+            List of Tuple coordinates of all unvisited nighbors of (y, x)
+        """
         unvisited_neighbors: List[Tuple[int, int]] = []
         all_neighbors = self.get_neighbors(y, x)
         for neigh_y, neigh_x in all_neighbors:
@@ -109,11 +125,17 @@ class Maze:
         return self.visited[y][x]
 
     def all_visited(self) -> bool:
-        """Check if all cells have been visited"""
+        """Check if all cells have been visited
+        Return:
+            True if all cells are visited else False
+        """
         return all(all(row) for row in self.visited)
 
     def to_hex_string(self) -> str:
-        """Convert maze to hex format for output file."""
+        """Convert maze to hex format for output file.
+        Return:
+            the string representation as Hexadecimal (X) of the maze
+        """
         string_list: List[str] = []
         for row in self.grid:
             line = ''.join(format(cell, 'X') for cell in row)
@@ -123,13 +145,25 @@ class Maze:
         return string_to_return
 
     def has_wall(self, y: int, x: int, direction: int) -> bool:
-        """Check if cell has a wall in given direction."""
+        """Check if cell has a wall in given direction.
+        Return:
+            True if it has wall in that direction else False 
+        """
         return bool(self.grid[y][x] & direction)
 
     def get_cell_value(self, y: int, x: int) -> int:
-        """Get cell's wall value."""
+        """
+        Get cell's wall value.
+        Return:
+            integer
+        """
         return self.grid[y][x]
 
     def set_cell_value(self, y: int, x: int, value: int) -> None:
-        """Set cell's wall value directly."""
+        """Set cell's wall value directly.
+        Args:
+            y: int y coordinate
+            x: int x coordinate
+            value: the given value that we want the cell to be
+        """
         self.grid[y][x] = value

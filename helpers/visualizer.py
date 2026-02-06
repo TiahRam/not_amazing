@@ -10,8 +10,7 @@ import curses
 import sys
 from typing import Tuple, List, Any
 from mazegen.maze import Maze, NORTH, EAST, SOUTH, WEST
-from helpers.entry_and_exit import add_entry_exit
-from mazegen.pathfinding import bfs
+from mazegen.pathfinding import bfs, dfs
 from mazegen.generator import MazeGenerator
 from helpers.imperfect_maze import add_random_loops
 try:
@@ -251,7 +250,7 @@ def _show_resize_error(stdscr: Any) -> None:
 
 def run_visualizer(perfect: bool, generator: MazeGenerator, maze_obj: Maze,
                    entry: Tuple[int, int], exit: Tuple[int, int],
-                   path_str: Any = "",
+                   sol_algo: str, path_str: Any = "",
                    gen_algo: str = "hunt_and_kill") -> None:
     """Launch the interactive maze visualizer.
 
@@ -269,15 +268,15 @@ def run_visualizer(perfect: bool, generator: MazeGenerator, maze_obj: Maze,
     """
     curses.wrapper(
         lambda stdscr: _visualizer_logic(
-            perfect, generator, stdscr, maze_obj, entry, exit, path_str,
-            gen_algo
+            perfect, generator, stdscr, maze_obj, entry, exit, sol_algo,
+            path_str, gen_algo
         )
     )
 
 
 def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
                       maze_obj: Maze, entry: Tuple[int, int],
-                      exit: Tuple[int, int],
+                      exit: Tuple[int, int], sol_algo: str,
                       path_str: Any, gen_algo: str = "hunt_and_kill") -> None:
     """Core visualization logic wrapped by curses.wrapper.
 
@@ -435,12 +434,14 @@ def _visualizer_logic(perfect: bool, generator: MazeGenerator, stdscr: Any,
                 # Re-generate a new maze
                 generator._pattern_42_cells = set()
                 maze_obj = generator.generate(algorithm=gen_algo)
-                add_entry_exit(maze_obj, entry, exit)
                 if not perfect:
                     pattern_cells = generator.get_pattern_42_cells()
                     loop_number = (maze_obj.width * maze_obj.height) // 10
                     add_random_loops(maze_obj, loop_number, pattern_cells)
-                path_str = bfs(maze_obj, entry, exit)
+                if sol_algo.upper() == "DFS":
+                    path_str = dfs(maze_obj, entry, exit)
+                else:
+                    path_str = bfs(maze_obj, entry, exit)
 
                 # Recalculate coordinates
                 path_coords_list = get_path_coordinates(entry, path_str)

@@ -3,7 +3,6 @@ import sys
 from mazegen.generator import MazeGenerator
 from mazegen.pathfinding import bfs, dfs
 from helpers.parser import first_args_validation, semantic_validation
-from helpers.entry_and_exit import add_entry_exit
 from helpers.output_writing import write_output
 from helpers.imperfect_maze import add_random_loops
 from helpers.validation import validate_perfect_maze
@@ -49,10 +48,7 @@ def main() -> None:
             print(f"ERROR: 'PERFECT={perfect}' but the maze is not perfect")
             sys.exit(1)
 
-    # 5. Add entry/exit
-    add_entry_exit(maze, entry, exit_)
-
-    # 6. Find the shortest path
+    # 5. Find the shortest path
     path = ""
     if algo.upper() == "DFS":
         path = dfs(maze, entry, exit_)
@@ -65,13 +61,14 @@ def main() -> None:
     if len(path) > 0:
         print(f"Path: {path[:50]}{'...' if len(path) > 50 else ''}")
 
-    # 7. Write output (without path for now)
+    # 6. Write output (without path for now)
     write_output(maze, entry, exit_, output_file, path)
 
     print("Maze generated successfully!")
     print(f"Written to: {typed_configs['OUTPUT_FILE']}")
     try:
-        run_visualizer(perfect, generator, maze, entry, exit_, path, gen_algo)
+        run_visualizer(perfect, generator, maze, entry, exit_,
+                       algo, path, gen_algo)
     except KeyboardInterrupt:
         return
 

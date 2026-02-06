@@ -53,7 +53,10 @@ class MazeGenerator:
         return self.maze
 
     def _get_valid_start(self) -> Tuple[int, int]:
-        """Get a starting cell that's not on the 42 pattern."""
+        """Get a starting cell that's not on the 42 pattern.
+        Return:
+            Coodrinate (y, x) of the valid start
+        """
         curr_y = random.randint(0, self.height - 1)
         curr_x = random.randint(0, self.width - 1)
 

@@ -88,9 +88,11 @@ class MazeGenerator:
             if valid_neighbors:
                 next_cell = random.choice(valid_neighbors)
                 next_y, next_x = next_cell
+                # remove wall between current and next coordinates
                 self.maze.remove_wall_between(curr_y, curr_x, next_y, next_x)
-
+                # mark next as visited
                 self.maze.mark_visited(next_y, next_x)
+                # update the current
                 curr_y, curr_x = next_y, next_x
             else:
                 # Hunt phase

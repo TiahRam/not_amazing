@@ -7,13 +7,19 @@ features for regenerating mazes and customizing colors.
 """
 
 import curses
-import pyfiglet
+import sys
 from typing import Tuple, List, Any
-from mazegen.maze import Maze, NORTH, EAST, SOUTH, WEST  # noqa
+from mazegen.maze import Maze, NORTH, EAST, SOUTH, WEST
 from helpers.entry_and_exit import add_entry_exit
 from mazegen.pathfinding import bfs
 from mazegen.generator import MazeGenerator
 from helpers.imperfect_maze import add_random_loops
+try:
+    import pyfiglet
+except ModuleNotFoundError:
+    print("ERROR: Module 'pyfiglet' not found\n"
+          "Run 'make install' to install the nodule(s)")
+    sys.exit(1)
 
 
 def get_path_coordinates(entry: Tuple[int, int],

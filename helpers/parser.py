@@ -154,14 +154,23 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
     # helper to check if the ENTRY and EXIT are at the border of the maze
     # ONLY IF THE PARSING SUCCEED
     def is_at_border(x: int, y: int, width: int, height: int) -> bool:
-        """Check if coordinate is at external border of maze."""
+        """
+        Check if coordinate is at external border of maze.
+        Args:
+            x: x coordinate (int)
+            y: y coordinate (int)
+            width: width of the maze (int)
+            height: height of the maze (int)
+        Return:
+            Boolean True if (x,y) is at the border of the maze
+        """
         return x == 0 or x == width - 1 or y == 0 or y == height - 1
 
     # ENTRY and EXIT cannot be at the same coordinates
     if splitted_entry == splitted_exit:
         errors.append("ENTRY and EXIT coordinates cannot be the same")
     else:
-        successful_entry_parsing = False
+        # successful_entry_parsing = False
         # Checking for the ENTRY coordinates
         try:
             x = int(splitted_entry[0])
@@ -178,21 +187,21 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
             else:
                 typed_configs["ENTRY"] = (y, x)
                 del updated_config_values["ENTRY"]
-                successful_entry_parsing = True
+                # successful_entry_parsing = True
         except ValueError:
             errors.append(f"Invalid ENTRY value: {splitted_entry}")
 
         # After parsing coordinates, check if it's at the border:
-        if successful_entry_parsing:
-            if is_at_border(typed_configs["ENTRY"][1],
-                            typed_configs["ENTRY"][0],
-                            typed_configs["WIDTH"],
-                            typed_configs["HEIGHT"]):
-                errors.append("ENTRY must be inside the WIDTH "
-                              "and HEIGHT bounds")
+        # if successful_entry_parsing:
+        #     if is_at_border(typed_configs["ENTRY"][1],
+        #                     typed_configs["ENTRY"][0],
+        #                     typed_configs["WIDTH"],
+        #                     typed_configs["HEIGHT"]):
+        #         errors.append("ENTRY must be inside the WIDTH "
+        #                       "and HEIGHT bounds")
 
         # Checking for the EXIT coordinates
-        successful_exit_parsing = False
+        # successful_exit_parsing = False
         try:
             x = int(splitted_exit[0])
             y = int(splitted_exit[1])
@@ -208,18 +217,18 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
             else:
                 typed_configs["EXIT"] = (y, x)
                 del updated_config_values["EXIT"]
-                successful_exit_parsing = True
+                # successful_exit_parsing = True
         except ValueError:
             errors.append(f"Invalid EXIT value: {splitted_exit}")
 
         # After parsing coordinates, check if it's at the border:
-        if successful_exit_parsing:
-            if is_at_border(typed_configs["EXIT"][1],
-                            typed_configs["EXIT"][0],
-                            typed_configs["WIDTH"],
-                            typed_configs["HEIGHT"]):
-                errors.append("EXIT must be inside the WIDTH "
-                              "and HEIGHT bounds")
+        # if successful_exit_parsing:
+        #     if is_at_border(typed_configs["EXIT"][1],
+        #                     typed_configs["EXIT"][0],
+        #                     typed_configs["WIDTH"],
+        #                     typed_configs["HEIGHT"]):
+        #         errors.append("EXIT must be inside the WIDTH "
+        #                       "and HEIGHT bounds")
 
     # check if there's any errors and exit
     if errors:
@@ -255,35 +264,13 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
     # Check for valid OUTPUT_FILE
     output_file = config_values["OUTPUT_FILE"]
 
-    # 1. Check it's not empty
-    if not output_file.strip():
-        errors.append("OUTPUT_FILE cannot be empty")
-    else:
-        # 2. Check if it contains invalid characters for the OS
-        invalid_chars = ['<', '>', ':', '"', '|', '?', '*']
-        if any(char in output_file for char in invalid_chars):
-            errors.append(f"OUTPUT_FILE contains invalid characters: "
-                          f"{output_file}")
+    # check if we have write permission in the directory
+    if not os.access('.', os.W_OK):
+        errors.append("No write permission in current directory")
 
-        # 3. Check if directory exists (if path is specified)
-        # If there's a directory part (e.g., "output/maze.txt")
-        directory = os.path.dirname(output_file)
-        if directory:
-            if not os.path.exists(directory):
-                errors.append(f"Directory does not exist: {directory}")
-            elif not os.path.isdir(directory):
-                errors.append(f"Path is not a directory: {directory}")
-            elif not os.access(directory, os.W_OK):
-                errors.append(f"No write permission for directory: "
-                              f"{directory}")
-        # Just a filename like "maze.txt" - writes to current dir
-        else:
-            if not os.access('.', os.W_OK):
-                errors.append("No write permission in current directory")
-
-        # If all checks pass, store it to the dictionnary that we return
-        typed_configs["OUTPUT_FILE"] = output_file
-        del updated_config_values["OUTPUT_FILE"]
+    # If all checks pass, store it to the dictionnary that we return
+    typed_configs["OUTPUT_FILE"] = output_file
+    del updated_config_values["OUTPUT_FILE"]
 
     if errors:
         print("Semantic error found:")
@@ -303,11 +290,6 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
             errors.append(f"Invalid SEED: must be an integer, "
                           f"got '{config_values['SEED']}' instead")
 
-    # VISUAL (optional, string)
-    if "VISUAL" in config_values:
-        typed_configs["VISUAL"] = config_values["VISUAL"]
-        del updated_config_values["VISUAL"]
-
     # ALGORITHM (optional, string for pathfinding)
     if "ALGORITHM" in config_values:
         typed_configs["ALGORITHM"] = config_values["ALGORITHM"]
@@ -318,15 +300,7 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
         gen_algo = config_values["GEN_ALGORITHM"].lower()
         if gen_algo in ["hunt_and_kill", "recursive_backtracker"]:
             typed_configs["GEN_ALGORITHM"] = gen_algo
-        else:
-            errors.append(f"Invalid GEN_ALGORITHM: '{gen_algo}'. "
-                          "Must be 'hunt_and_kill' or 'recursive_backtracker'")
         del updated_config_values["GEN_ALGORITHM"]
-
-    # DISPLAY MODE (optional, string)
-    if "DISPLAY MODE" in config_values:
-        typed_configs["DISPLAY MODE"] = config_values["DISPLAY MODE"]
-        del updated_config_values["DISPLAY MODE"]
 
     if errors:
         print("Semantic error found:")

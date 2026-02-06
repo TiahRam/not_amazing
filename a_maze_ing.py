@@ -65,7 +65,7 @@ def main() -> None:
     if len(path) > 0:
         print(f"Path: {path[:50]}{'...' if len(path) > 50 else ''}")
 
-    # 6. Write output (without path for now)
+    # 7. Write output (without path for now)
     write_output(maze, entry, exit_, output_file, path)
 
     print("Maze generated successfully!")

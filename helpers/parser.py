@@ -151,26 +151,10 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
         errors.append(f"EXIT must have exactly 2 values (x,y), "
                       f"got {len(splitted_exit)}")
 
-    # helper to check if the ENTRY and EXIT are at the border of the maze
-    # ONLY IF THE PARSING SUCCEED
-    def is_at_border(x: int, y: int, width: int, height: int) -> bool:
-        """
-        Check if coordinate is at external border of maze.
-        Args:
-            x: x coordinate (int)
-            y: y coordinate (int)
-            width: width of the maze (int)
-            height: height of the maze (int)
-        Return:
-            Boolean True if (x,y) is at the border of the maze
-        """
-        return x == 0 or x == width - 1 or y == 0 or y == height - 1
-
     # ENTRY and EXIT cannot be at the same coordinates
     if splitted_entry == splitted_exit:
         errors.append("ENTRY and EXIT coordinates cannot be the same")
     else:
-        # successful_entry_parsing = False
         # Checking for the ENTRY coordinates
         try:
             x = int(splitted_entry[0])
@@ -187,21 +171,10 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
             else:
                 typed_configs["ENTRY"] = (y, x)
                 del updated_config_values["ENTRY"]
-                # successful_entry_parsing = True
         except ValueError:
             errors.append(f"Invalid ENTRY value: {splitted_entry}")
 
-        # After parsing coordinates, check if it's at the border:
-        # if successful_entry_parsing:
-        #     if is_at_border(typed_configs["ENTRY"][1],
-        #                     typed_configs["ENTRY"][0],
-        #                     typed_configs["WIDTH"],
-        #                     typed_configs["HEIGHT"]):
-        #         errors.append("ENTRY must be inside the WIDTH "
-        #                       "and HEIGHT bounds")
-
         # Checking for the EXIT coordinates
-        # successful_exit_parsing = False
         try:
             x = int(splitted_exit[0])
             y = int(splitted_exit[1])
@@ -217,18 +190,8 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
             else:
                 typed_configs["EXIT"] = (y, x)
                 del updated_config_values["EXIT"]
-                # successful_exit_parsing = True
         except ValueError:
             errors.append(f"Invalid EXIT value: {splitted_exit}")
-
-        # After parsing coordinates, check if it's at the border:
-        # if successful_exit_parsing:
-        #     if is_at_border(typed_configs["EXIT"][1],
-        #                     typed_configs["EXIT"][0],
-        #                     typed_configs["WIDTH"],
-        #                     typed_configs["HEIGHT"]):
-        #         errors.append("EXIT must be inside the WIDTH "
-        #                       "and HEIGHT bounds")
 
     # check if there's any errors and exit
     if errors:
@@ -249,7 +212,7 @@ def semantic_validation(config_values: Dict[str, str]) -> Dict[str, Any]:
     else:
         errors.append("In 'PERFECT' configuration line: "
                       f"'{config_values["PERFECT"]}' is not a valid "
-                      "parsable boolean value. Please use 'True/False',"
+                      "parsable boolean value.\nPlease use 'True/False',"
                       "'1/0' or 'Yes/No'")
 
     if errors:

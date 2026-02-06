@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/mramidam/a_maze_ing"
+Homepage = "https://github.com/TiahRam/not_amazing"
 
 [tool.setuptools.packages.find]
 include = ["mazegen*"]

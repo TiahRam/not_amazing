@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by mramidam and mnassir.*
+*This project has been created as part of the 42 curriculum by mramidam and mnassiri.*
 
 # A-Maze-Ing
 

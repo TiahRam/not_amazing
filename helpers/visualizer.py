@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Maze visualizer module using curses for terminal-based rendering.
 
 This module provides functions to display and animate maze solutions
@@ -8,7 +7,7 @@ features for regenerating mazes and customizing colors.
 
 import curses
 import sys
-from typing import Tuple, List, Any
+from typing import Tuple, List, Any, Optional
 from mazegen.maze import Maze, NORTH, EAST, SOUTH, WEST
 from mazegen.pathfinding import bfs, dfs
 from mazegen.generator import MazeGenerator
@@ -22,7 +21,7 @@ except ModuleNotFoundError:
 
 
 def get_path_coordinates(entry: Tuple[int, int],
-                         path_str: Any) -> List[Tuple[int, int]]:
+                         path_str: str) -> List[Tuple[int, int]]:
     """Convert a path string into a list of coordinate tuples.
 
     Takes a starting position and a string of directional moves (N, S, E, W)
@@ -38,7 +37,7 @@ def get_path_coordinates(entry: Tuple[int, int],
     """
     coords = []
     curr_y, curr_x = entry
-    coords.append((curr_y, curr_x))  # Add start
+    coords.append((curr_y, curr_x))
     for move in path_str:
         if move == "N":
             curr_y -= 1
@@ -55,7 +54,7 @@ def get_path_coordinates(entry: Tuple[int, int],
 def animate_solution(stdscr: Any, maze_obj: Maze,
                      entry: Tuple[int, int], exit: Tuple[int, int],
                      path_coords_list: List[Tuple[int, int]],
-                     entry_pair: Any = None) -> None:
+                     entry_pair: Optional[Any] = None) -> None:
     """Animate the solution path through the maze.
 
     Draws the maze and then animates the solution path cell by cell,
@@ -64,9 +63,9 @@ def animate_solution(stdscr: Any, maze_obj: Maze,
     Args:
         stdscr: The curses window object for drawing.
         maze_obj: The Maze object containing the maze structure.
-        entry: Entry point coordinates as (row, col) tuple.
-        exit: Exit point coordinates as (row, col) tuple.
-        path_coords_list: List of (row, col) tuples representing the solution.
+        entry: Entry point coordinates as (y, x) tuple.
+        exit: Exit point coordinates as (y, x) tuple.
+        path_coords_list: List of (y, x) tuples representing the solution.
         entry_pair: Optional curses color pair for the entry marker.
 
     Raises:

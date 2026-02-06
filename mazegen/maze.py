@@ -147,7 +147,7 @@ class Maze:
     def has_wall(self, y: int, x: int, direction: int) -> bool:
         """Check if cell has a wall in given direction.
         Return:
-            True if it has wall in that direction else False 
+            True if it has wall in that direction else False
         """
         return bool(self.grid[y][x] & direction)
 
